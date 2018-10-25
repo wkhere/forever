@@ -1,0 +1,14 @@
++ elimination of multiple events after one edit,
+  based on a common sense
+
+- use rusage or sth to print:
+  [0.49s user  0.05s sys  100.61% cpu  0.551s total]
+
+  eg.
+  cmd.ProcessState.SysUsage().(*syscall.Rusage) ...
+
+
+- ability to restart the process (like webserver)
+
+- by default work on all files and dirs recursively minus
+  some defined dirs [.git vendor __pycache__ .mypy_cache deps _build ebin ..etc]
