@@ -12,3 +12,4 @@
 
 - by default work on all files and dirs recursively minus
   some defined dirs [.git vendor __pycache__ .mypy_cache deps _build ebin ..etc]
+  via filepath.Walk
