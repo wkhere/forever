@@ -18,10 +18,8 @@ func (e evcatch) String() string {
 
 var (
 	minTick = 200 * time.Millisecond
-	maxTick = 500 * time.Millisecond
+	// tick time will be configurable
 )
-
-// above will be configurable
 
 func loop(w *fsnotify.Watcher) {
 
@@ -29,13 +27,12 @@ func loop(w *fsnotify.Watcher) {
 	const (
 		stProcessed status = iota + 1
 		stMinTick
-		stMaxTick
 	)
 
 	var (
 		ignoring, processing bool
 		t0                   time.Time
-		minTicker, maxTicker *time.Timer
+		minTicker            *time.Timer
 		statusc              = make(chan status)
 	)
 
@@ -54,19 +51,17 @@ func loop(w *fsnotify.Watcher) {
 			}
 
 			if processing {
-				// for now, do nothing, TBD: queue the event
-				log("processing did not end, skip event\t", e)
-				continue
+				panic("processing while not ignoring should never happen")
 			}
 
 			// if mintick comes during processing then nop
 			// if mintick comes after processing then ignoring stops
-			// processing end does not stop ignoring
+			// processing end doesn't stop ignoring unless mintick time passed
 
-			// max(processing, mintick) stops ignoring
-			// min(processing, maxtick) also stops ignoring
-			// if new request comes during processing but after maxtick then
-			// processing will repeat - TBD
+			// so, max(processing, mintick) stops ignoring
+
+			// if new request comes during processing, is ignored as a conse-
+			// quence of the scenario above
 
 			ignoring = true
 			processing = true
@@ -75,10 +70,6 @@ func loop(w *fsnotify.Watcher) {
 			minTicker = time.AfterFunc(minTick, func() {
 				debugf("* mintk i=%v p=%v", ignoring, processing)
 				statusc <- stMinTick
-			})
-			maxTicker = time.AfterFunc(maxTick, func() {
-				debugf("* maxtk i=%v p=%v", ignoring, processing)
-				statusc <- stMaxTick
 			})
 
 			go func() {
@@ -100,17 +91,10 @@ func loop(w *fsnotify.Watcher) {
 					continue
 				}
 				minTicker.Stop() // in case of some subtle scheduling slip
-				maxTicker.Stop()
 				ignoring = false
 
 			case stMinTick:
 				if !processing {
-					ignoring = false
-					maxTicker.Stop()
-				}
-
-			case stMaxTick:
-				if processing && ignoring {
 					ignoring = false
 				}
 			}
