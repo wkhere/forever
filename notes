@@ -1,7 +1,7 @@
 + elimination of multiple events after one edit,
   based on a common sense
 
-- run processing also on start, like forever.sh
++ run processing also on start, like forever.sh
 
 - use rusage or sth to print:
   [0.49s user  0.05s sys  100.61% cpu  0.551s total]

@@ -36,6 +36,25 @@ func loop(w *fsnotify.Watcher) {
 		statusc              = make(chan status)
 	)
 
+	startProcessing := func() {
+		ignoring = true
+		processing = true
+		t0 = time.Now()
+
+		minTicker = time.AfterFunc(minTick, func() {
+			debugf("* mintk i=%v p=%v", ignoring, processing)
+			statusc <- stMinTick
+		})
+
+		go func() {
+			debugf("* proc! i=%v p=%v", ignoring, processing)
+			process()
+			statusc <- stProcessed
+		}()
+	}
+
+	startProcessing()
+
 	for {
 		select {
 		case ev, ok := <-w.Events:
@@ -63,20 +82,8 @@ func loop(w *fsnotify.Watcher) {
 			// if new request comes during processing, is ignored as a conse-
 			// quence of the scenario above
 
-			ignoring = true
-			processing = true
-			t0 = time.Now()
-
-			minTicker = time.AfterFunc(minTick, func() {
-				debugf("* mintk i=%v p=%v", ignoring, processing)
-				statusc <- stMinTick
-			})
-
-			go func() {
-				debugf("* proc! i=%v p=%v", ignoring, processing)
-				process(e)
-				statusc <- stProcessed
-			}()
+			log("process event\t", e)
+			startProcessing()
 
 		case st := <-statusc:
 			t1 := time.Now()
