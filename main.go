@@ -13,6 +13,14 @@ func init() {
 }
 
 func main() {
+	var dirs []string
+
+	switch a := flag.Args(); {
+	case len(a) == 0:
+		dirs = []string{"."}
+	default:
+		dirs = a
+	}
 
 	w, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -28,11 +36,8 @@ func main() {
 
 	go loop(w)
 
-	for _, f := range flag.Args() {
-		err := w.Add(f)
-		if err != nil {
-			log("skipping", f, "error:", err)
-		}
+	for _, dir := range dirs {
+		feedWatcher(w, dir)
 	}
 
 	done := make(chan struct{})
