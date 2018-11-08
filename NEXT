@@ -1,5 +1,5 @@
-+ elimination of multiple events after one edit,
-  based on a common sense
++ elimination of multiple events after one edit
+- tick configurable via commandline
 
 + run processing also on start, like forever.sh
 
