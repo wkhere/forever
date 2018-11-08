@@ -65,7 +65,7 @@ func loop(w *fsnotify.Watcher) {
 			debugf("event i=%v p=%v", ignoring, processing)
 
 			if ignoring {
-				log("ignore event\t", e)
+				debugf("ignore\t%s", e)
 				continue
 			}
 
@@ -82,7 +82,7 @@ func loop(w *fsnotify.Watcher) {
 			// if new request comes during processing, is ignored as a conse-
 			// quence of the scenario above
 
-			log("process event\t", e)
+			debugf("process\t%s", e)
 			startProcessing()
 
 		case st := <-statusc:
@@ -110,7 +110,7 @@ func loop(w *fsnotify.Watcher) {
 			if !ok {
 				return
 			}
-			log("received error:", err)
+			debugf("received error:", err)
 		}
 	}
 }
