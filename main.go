@@ -1,11 +1,16 @@
 package main // import "github.com/wkhere/forever"
 
 import (
+	"flag"
 	"fmt"
 	"os"
 
 	"github.com/fsnotify/fsnotify"
 )
+
+func init() {
+	flag.Parse()
+}
 
 func main() {
 
@@ -23,7 +28,7 @@ func main() {
 
 	go loop(w)
 
-	for _, f := range os.Args[1:] {
+	for _, f := range flag.Args() {
 		err := w.Add(f)
 		if err != nil {
 			log("skipping", f, "error:", err)
