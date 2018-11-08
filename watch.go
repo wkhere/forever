@@ -42,12 +42,12 @@ func loop(w *fsnotify.Watcher) {
 		t0 = time.Now()
 
 		minTicker = time.AfterFunc(minTick, func() {
-			debugf("* mintk i=%v p=%v", ignoring, processing)
+			debugf("mintk i=%v p=%v", ignoring, processing)
 			statusc <- stMinTick
 		})
 
 		go func() {
-			debugf("* proc! i=%v p=%v", ignoring, processing)
+			debugf("proc! i=%v p=%v", ignoring, processing)
 			process()
 			statusc <- stProcessed
 		}()
@@ -62,7 +62,7 @@ func loop(w *fsnotify.Watcher) {
 				return
 			}
 			e := evcatch{ev, time.Now()}
-			debugf("* event i=%v p=%v", ignoring, processing)
+			debugf("event i=%v p=%v", ignoring, processing)
 
 			if ignoring {
 				log("ignore event\t", e)
@@ -88,7 +88,7 @@ func loop(w *fsnotify.Watcher) {
 		case st := <-statusc:
 			t1 := time.Now()
 
-			debugf("* strcv i=%v p=%v st=%v", ignoring, processing, st)
+			debugf("strcv i=%v p=%v st=%v", ignoring, processing, st)
 			switch st {
 			case stProcessed:
 				processing = false
