@@ -42,3 +42,7 @@ func main() {
 func log(msgs ...interface{}) {
 	fmt.Fprintln(os.Stderr, msgs...)
 }
+
+func logf(format string, msgs ...interface{}) {
+	log(fmt.Sprintf(format, msgs...))
+}
