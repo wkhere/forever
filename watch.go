@@ -2,6 +2,8 @@ package main // import "github.com/wkhere/forever"
 
 import (
 	"fmt"
+	"os"
+	"syscall"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
@@ -48,7 +50,11 @@ func loop(w *fsnotify.Watcher) {
 
 		go func() {
 			debugf("watch: proc! i=%v p=%v", ignoring, processing)
-			process()
+			pst, err := process()
+			if err == nil {
+				t := time.Now()
+				logBlue(fmt.Sprintf("[%s]", pstatef(pst, t.Sub(t0))))
+			}
 			statusc <- stProcessed
 		}()
 	}
@@ -119,4 +125,17 @@ func loop(w *fsnotify.Watcher) {
 
 func timef(t time.Time) string {
 	return t.Format("15:04:05")
+}
+
+func pstatef(pst *os.ProcessState, wall time.Duration) string {
+	const ms = time.Millisecond
+	var (
+		sys    = pst.SystemTime()
+		user   = pst.UserTime()
+		pcpu   = float64(user+sys) / float64(wall)
+		rusage = pst.SysUsage().(*syscall.Rusage)
+		maxrss = rusage.Maxrss
+	)
+	return fmt.Sprintf("%s user  %s sys  %.2f%% cpu  %s total, rss %dk",
+		user.Round(ms), sys.Round(ms), pcpu*100, wall.Round(ms), maxrss)
 }

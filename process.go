@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"os"
 	"os/exec"
 )
@@ -10,12 +11,8 @@ var progs = []string{
 	"make",
 }
 
-func process() {
-	var done bool
+func process() (*os.ProcessState, error) {
 	for _, p := range progs {
-		if done {
-			break
-		}
 		c := exec.Command(p)
 		c.Stdout = os.Stdout
 		c.Stderr = os.Stderr
@@ -27,12 +24,14 @@ func process() {
 			log(err)
 			continue
 		}
-		done = true
+
+		return c.ProcessState, nil
 	}
-	if !done {
-		log("could not find suitable program to run")
-	}
+
+	return nil, errProgNotRun
 }
+
+var errProgNotRun = errors.New("could not run suitable program")
 
 func progNotFound(err error) bool {
 	return os.IsNotExist(err) || err == exec.ErrNotFound
