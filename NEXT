@@ -19,3 +19,5 @@
 
 + when given dir argument, should chdir to there and try to read .forever.step
   from there
+
++ print rusage/maxrss only on unix systems

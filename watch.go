@@ -3,7 +3,6 @@ package main // import "github.com/wkhere/forever"
 import (
 	"fmt"
 	"os"
-	"syscall"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
@@ -130,12 +129,14 @@ func timef(t time.Time) string {
 func pstatef(pst *os.ProcessState, wall time.Duration) string {
 	const ms = time.Millisecond
 	var (
-		sys    = pst.SystemTime()
-		user   = pst.UserTime()
-		pcpu   = float64(user+sys) / float64(wall)
-		rusage = pst.SysUsage().(*syscall.Rusage)
-		maxrss = rusage.Maxrss
+		sys  = pst.SystemTime()
+		user = pst.UserTime()
+		pcpu = float64(user+sys) / float64(wall)
 	)
-	return fmt.Sprintf("%s user  %s sys  %.2f%% cpu  %s total, rss %dk",
-		user.Round(ms), sys.Round(ms), pcpu*100, wall.Round(ms), maxrss)
+	if maxrss, ok := sysRusageExtras.maxRss(pst); ok {
+		return fmt.Sprintf("%s user  %s sys  %.2f%% cpu  %s total, rss %dk",
+			user.Round(ms), sys.Round(ms), pcpu*100, wall.Round(ms), maxrss)
+	}
+	return fmt.Sprintf("%s user  %s sys  %.2f%% cpu  %s total",
+		user.Round(ms), sys.Round(ms), pcpu*100, wall.Round(ms))
 }
