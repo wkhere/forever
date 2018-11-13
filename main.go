@@ -3,6 +3,7 @@ package main // import "github.com/wkhere/forever"
 import (
 	"flag"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/fsnotify/fsnotify"
@@ -50,4 +51,10 @@ func log(msgs ...interface{}) {
 
 func logf(format string, msgs ...interface{}) {
 	log(fmt.Sprintf(format, msgs...))
+}
+
+func logBlue(s string) {
+	io.WriteString(os.Stderr, "\033[34m")
+	io.WriteString(os.Stderr, s)
+	io.WriteString(os.Stderr, "\033[0m\n")
 }
