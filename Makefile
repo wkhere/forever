@@ -1,5 +1,5 @@
 go:
-	go fmt 		./...
-	go install	./...
+	go fmt
+	go install
 
 .PHONY: go
