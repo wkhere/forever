@@ -1,4 +1,4 @@
-package main // import "github.com/wkhere/forever"
+package main
 
 import (
 	"fmt"
