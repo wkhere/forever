@@ -14,13 +14,16 @@ func init() {
 }
 
 func main() {
-	var dirs []string
+	var dir string
 
-	switch a := flag.Args(); {
-	case len(a) == 0:
-		dirs = []string{"."}
+	switch a := flag.Args(); len(a) {
+	case 0:
+		dir = "."
+	case 1:
+		dir = a[0]
 	default:
-		dirs = a
+		log("give only 1 directory as an argument")
+		os.Exit(2)
 	}
 
 	w, err := fsnotify.NewWatcher()
@@ -35,11 +38,16 @@ func main() {
 		}
 	}()
 
-	go loop(w)
+	// watcher should add all files before chdir
+	feedWatcher(w, dir)
 
-	for _, dir := range dirs {
-		feedWatcher(w, dir)
+	err = os.Chdir(dir)
+	if err != nil {
+		log("cannot prepare:", err)
+		os.Exit(1)
 	}
+
+	go loop(w)
 
 	done := make(chan struct{})
 	<-done

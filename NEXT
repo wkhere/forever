@@ -16,5 +16,5 @@
   some defined dirs [.git vendor __pycache__ .mypy_cache deps _build ebin ..etc]
   via filepath.Walk
 
-- when given dir argument, should chdir to there and try to read .forever.step
++ when given dir argument, should chdir to there and try to read .forever.step
   from there
