@@ -49,8 +49,8 @@ func main() {
 
 	go loop(w)
 
-	done := make(chan struct{})
-	<-done
+	neverending := make(chan struct{})
+	<-neverending
 }
 
 func log(msgs ...interface{}) {
