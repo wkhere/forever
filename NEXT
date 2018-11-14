@@ -27,3 +27,6 @@
 + next program should be only tried if last was not found
 
 + show timings also on failed processings runs (but when it was run)
+
++ somehow going to other directory misbehaves
+  + chdir first and then add from .

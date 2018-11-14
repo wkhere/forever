@@ -26,6 +26,12 @@ func main() {
 		os.Exit(2)
 	}
 
+	err := os.Chdir(dir)
+	if err != nil {
+		log("cannot prepare:", err)
+		os.Exit(1)
+	}
+
 	w, err := fsnotify.NewWatcher()
 	if err != nil {
 		log("cannot start watcher: ", err)
@@ -38,14 +44,8 @@ func main() {
 		}
 	}()
 
-	// watcher should add all files before chdir
-	feedWatcher(w, dir)
-
-	err = os.Chdir(dir)
-	if err != nil {
-		log("cannot prepare:", err)
-		os.Exit(1)
-	}
+	// watcher should add all files before looping
+	feedWatcher(w, ".")
 
 	go loop(w)
 
