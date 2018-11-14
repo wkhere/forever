@@ -21,7 +21,7 @@
   from there
 
 + print rusage/maxrss only on unix systems
-- switch maxrss to int to support 32b architectures
++ switch maxrss to int to support 32b architectures
 
 + on failed steps, the program is run twice;
 + next program should be only tried if last was not found

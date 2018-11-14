@@ -3,13 +3,13 @@ package main
 import "os"
 
 type rusageExtras interface {
-	maxRss(*os.ProcessState) (int64, bool)
+	maxRss(*os.ProcessState) (int, bool)
 }
 
 var sysRusageExtras rusageExtras = noRusageExtras{}
 
 type noRusageExtras struct{}
 
-func (_ noRusageExtras) maxRss(*os.ProcessState) (int64, bool) {
+func (_ noRusageExtras) maxRss(*os.ProcessState) (int, bool) {
 	return -1, false
 }
