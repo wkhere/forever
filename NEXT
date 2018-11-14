@@ -30,3 +30,5 @@
 
 + somehow going to other directory misbehaves
   + chdir first and then add from .
+
+- improve usage message
