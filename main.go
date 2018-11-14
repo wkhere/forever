@@ -9,7 +9,13 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
+func usage() {
+	fmt.Fprintf(os.Stderr, "Usage: forever [-d] [dir]\n")
+	flag.PrintDefaults()
+}
+
 func init() {
+	flag.Usage = usage
 	flag.Parse()
 }
 
