@@ -50,7 +50,10 @@ func loop(w *fsnotify.Watcher) {
 		go func() {
 			debugf("watch: proc! i=%v p=%v", ignoring, processing)
 			pst, err := process()
-			if err == nil {
+			switch {
+			case pst == nil:
+				log(err)
+			default:
 				t := time.Now()
 				logBlue(fmt.Sprintf("[%s]", pstatef(pst, t.Sub(t0))))
 			}

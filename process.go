@@ -13,26 +13,16 @@ var progs = []string{
 
 func process() (*os.ProcessState, error) {
 	for _, p := range progs {
+		if _, err := exec.LookPath(p); err != nil {
+			continue
+		}
 		c := exec.Command(p)
 		c.Stdout = os.Stdout
 		c.Stderr = os.Stderr
 		err := c.Run()
-		if progNotFound(err) {
-			continue
-		}
-		if err != nil {
-			log(err)
-			continue
-		}
-
-		return c.ProcessState, nil
+		return c.ProcessState, err
 	}
-
 	return nil, errProgNotRun
 }
 
 var errProgNotRun = errors.New("could not run suitable program")
-
-func progNotFound(err error) bool {
-	return os.IsNotExist(err) || err == exec.ErrNotFound
-}
