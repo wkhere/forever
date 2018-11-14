@@ -58,8 +58,8 @@ func loop(w *fsnotify.Watcher) {
 		}()
 	}
 
-	startProcessing()
 	logBlue(fmt.Sprintf("[forever started %s]", timef(t0)))
+	startProcessing()
 
 	for {
 		select {
@@ -89,8 +89,8 @@ func loop(w *fsnotify.Watcher) {
 			// quence of the scenario above
 
 			debugf("watch: process\t%s", e)
-			startProcessing()
 			logBlue(fmt.Sprintf("[forever awakened %s]", timef(t0)))
+			startProcessing()
 
 		case st := <-statusc:
 			t1 := time.Now()
