@@ -17,10 +17,7 @@ func (e evcatch) String() string {
 	return fmt.Sprintf("{%v %v}", e.t, e.ev)
 }
 
-var (
-	minTick = 200 * time.Millisecond
-	// tick time will be configurable
-)
+var minTick time.Duration
 
 func loop(w *fsnotify.Watcher) {
 

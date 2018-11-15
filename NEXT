@@ -1,5 +1,5 @@
 + elimination of multiple events after one edit
-- tick configurable via commandline
++ tick configurable via commandline
 
 + reuse .forever.step but ignore files selection
 
