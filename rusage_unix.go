@@ -13,7 +13,7 @@ func init() {
 
 type rusageExtrasUnix struct{}
 
-func (x rusageExtrasUnix) maxRss(pst *os.ProcessState) (int, bool) {
+func (_ rusageExtrasUnix) maxRss(pst *os.ProcessState) (int, bool) {
 	rusage, ok := pst.SysUsage().(*syscall.Rusage)
 	if !ok {
 		return -1, false
