@@ -37,7 +37,6 @@ func loop(w *fsnotify.Watcher) {
 	startProcessing := func() {
 		ignoring = true
 		processing = true
-		t0 = time.Now()
 
 		minTicker = time.AfterFunc(minTick, func() {
 			debugf("watch: mintk i=%v p=%v", ignoring, processing)
@@ -58,6 +57,7 @@ func loop(w *fsnotify.Watcher) {
 		}()
 	}
 
+	t0 = time.Now()
 	logBlue(fmt.Sprintf("[forever started %s]", timef(t0)))
 	startProcessing()
 
@@ -89,6 +89,7 @@ func loop(w *fsnotify.Watcher) {
 			// quence of the scenario above
 
 			debugf("watch: process\t%s", e)
+			t0 = time.Now()
 			logBlue(fmt.Sprintf("[forever awakened %s]", timef(t0)))
 			startProcessing()
 
