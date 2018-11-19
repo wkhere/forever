@@ -10,13 +10,13 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
-var tickFlag = flag.Int("t", 200, "events tick [ms]")
+var tickFlag = flag.Uint("t", 200, "events tick [ms]")
 
 func init() {
 	flag.Usage = usage
 	flag.Parse()
 
-	minTick = time.Duration(*tickFlag * int(time.Millisecond))
+	minTick = time.Duration(*tickFlag * uint(time.Millisecond))
 }
 
 func usage() {
