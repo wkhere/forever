@@ -34,3 +34,6 @@
 + improve usage message
 
 - improve readme
+
+- flags: -d DIR, -v for verbose, -vv for debug (was -d)
+- regular argument is a command to run
