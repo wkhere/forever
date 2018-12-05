@@ -23,20 +23,19 @@ var (
 
 func parseArgs() (c config) {
 
+	flag.StringVar(&c.dir, "d", ".", "directory")
 	flag.DurationVar(&c.minTick, "t", 200*time.Millisecond, "events tick")
 	flag.BoolVar(&c.verbose, "v", false, "verbose/debug mode")
 
 	flag.Usage = usage
 	flag.Parse()
 
-	c.dir = "." //tmp
-
 	return
 }
 
 func usage() {
 	fmt.Fprintf(flag.CommandLine.Output(),
-		"Usage: forever [-v] [-t events-tick]\n")
+		"Usage: forever [-d dir] [-t events-tick] [-v]\n")
 	flag.PrintDefaults()
 }
 
