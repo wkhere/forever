@@ -20,7 +20,7 @@ func init() {
 }
 
 func usage() {
-	fmt.Fprintf(os.Stderr,
+	fmt.Fprintf(flag.CommandLine.Output(),
 		"Usage: forever [-d] [-t events-tick] [dir]\n")
 	flag.PrintDefaults()
 }
