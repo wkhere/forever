@@ -49,12 +49,6 @@ func main() {
 		log("cannot start watcher: ", err)
 		os.Exit(1)
 	}
-	defer func() {
-		err = w.Close()
-		if err != nil {
-			log("error during closing watcher:", err)
-		}
-	}()
 
 	// watcher should add all files before looping
 	feedWatcher(w, ".")
