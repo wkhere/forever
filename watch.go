@@ -17,9 +17,7 @@ func (e evcatch) String() string {
 	return fmt.Sprintf("{%v %v}", e.t, e.ev)
 }
 
-var minTick time.Duration
-
-func loop(w *fsnotify.Watcher) {
+func loop(w *fsnotify.Watcher, minTick time.Duration) {
 
 	type status uint
 	const (

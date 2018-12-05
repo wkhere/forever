@@ -10,35 +10,41 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
-var tickFlag = flag.Uint("t", 200, "events tick [ms]")
+type config struct {
+	dir     string
+	minTick time.Duration
+	verbose bool
+}
 
-func init() {
+// vars which need to be global
+var (
+	verbose bool
+)
+
+func parseArgs() (c config) {
+
+	flag.DurationVar(&c.minTick, "t", 200*time.Millisecond, "events tick")
+	flag.BoolVar(&c.verbose, "d", false, "debug mode")
+
 	flag.Usage = usage
 	flag.Parse()
 
-	minTick = time.Duration(*tickFlag * uint(time.Millisecond))
+	c.dir = "." //tmp
+
+	return
 }
 
 func usage() {
 	fmt.Fprintf(flag.CommandLine.Output(),
-		"Usage: forever [-d] [-t events-tick] [dir]\n")
+		"Usage: forever [-d] [-t events-tick]\n")
 	flag.PrintDefaults()
 }
 
 func main() {
-	var dir string
+	c := parseArgs()
+	verbose = c.verbose
 
-	switch a := flag.Args(); len(a) {
-	case 0:
-		dir = "."
-	case 1:
-		dir = a[0]
-	default:
-		log("give only 1 directory as an argument")
-		os.Exit(2)
-	}
-
-	err := os.Chdir(dir)
+	err := os.Chdir(c.dir)
 	if err != nil {
 		log("cannot prepare:", err)
 		os.Exit(1)
@@ -51,9 +57,9 @@ func main() {
 	}
 
 	// watcher should add all files before looping
-	feedWatcher(w, ".")
+	feedWatcher(w, c.dir)
 
-	go loop(w)
+	go loop(w, c.minTick)
 
 	neverending := make(chan struct{})
 	<-neverending
