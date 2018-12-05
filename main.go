@@ -24,7 +24,7 @@ var (
 func parseArgs() (c config) {
 
 	flag.DurationVar(&c.minTick, "t", 200*time.Millisecond, "events tick")
-	flag.BoolVar(&c.verbose, "d", false, "debug mode")
+	flag.BoolVar(&c.verbose, "v", false, "verbose/debug mode")
 
 	flag.Usage = usage
 	flag.Parse()
@@ -36,7 +36,7 @@ func parseArgs() (c config) {
 
 func usage() {
 	fmt.Fprintf(flag.CommandLine.Output(),
-		"Usage: forever [-d] [-t events-tick]\n")
+		"Usage: forever [-v] [-t events-tick]\n")
 	flag.PrintDefaults()
 }
 
