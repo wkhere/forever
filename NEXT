@@ -35,5 +35,5 @@
 
 - improve readme
 
-- flags: -d DIR, -v for verbose, -vv for debug (was -d)
++ flags: -d DIR, -v for verbose/debug (was -d)
 - regular argument is a command to run
