@@ -18,8 +18,8 @@ var ignoredDirs = []string{
 	"classes",
 }
 
-func feedWatcher(w *fsnotify.Watcher, rootDir string) {
-	err := filepath.Walk(rootDir,
+func feedWatcher(w *fsnotify.Watcher) {
+	err := filepath.Walk(".",
 		func(path string, info os.FileInfo, err error) error {
 			if info != nil && info.IsDir() {
 				_, last := filepath.Split(path)

@@ -60,7 +60,7 @@ func main() {
 	}
 
 	// watcher should add all files before looping
-	feedWatcher(w, c.dir)
+	feedWatcher(w)
 
 	go loop(w, c.minTick)
 
