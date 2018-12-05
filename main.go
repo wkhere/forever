@@ -30,6 +30,10 @@ func parseArgs() (c config) {
 	flag.Usage = usage
 	flag.Parse()
 
+	if len(flag.Args()) > 0 {
+		usage()
+		os.Exit(2)
+	}
 	return
 }
 
