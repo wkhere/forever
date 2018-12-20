@@ -10,18 +10,16 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
-type config struct {
+type configT struct {
 	dir     string
 	minTick time.Duration
 	verbose bool
 }
 
-// vars which need to be global
-var (
-	verbose bool
-)
+var config *configT
 
-func parseArgs() (c config) {
+func parseArgs() (c *configT) {
+	c = new(configT)
 
 	flag.StringVar(&c.dir, "d", ".", "directory")
 	flag.DurationVar(&c.minTick, "t", 200*time.Millisecond, "events tick")
@@ -44,10 +42,9 @@ func usage() {
 }
 
 func main() {
-	c := parseArgs()
-	verbose = c.verbose
+	config = parseArgs()
 
-	err := os.Chdir(c.dir)
+	err := os.Chdir(config.dir)
 	if err != nil {
 		log("cannot prepare:", err)
 		os.Exit(1)
@@ -62,7 +59,7 @@ func main() {
 	// watcher should add all files before looping
 	feedWatcher(w)
 
-	go loop(w, c.minTick)
+	go loop(w, config.minTick)
 
 	neverending := make(chan struct{})
 	<-neverending

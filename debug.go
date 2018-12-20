@@ -5,7 +5,7 @@ import (
 )
 
 func debugf(format string, a ...interface{}) {
-	if verbose {
+	if config.verbose {
 		log(fmt.Sprintf("// "+format, a...))
 	}
 }
