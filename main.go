@@ -14,6 +14,7 @@ type configT struct {
 	dir     string
 	minTick time.Duration
 	verbose bool
+	debug   bool
 }
 
 var config *configT
@@ -23,7 +24,8 @@ func parseArgs() (c *configT) {
 
 	flag.StringVar(&c.dir, "d", ".", "directory")
 	flag.DurationVar(&c.minTick, "t", 200*time.Millisecond, "events tick")
-	flag.BoolVar(&c.verbose, "v", false, "verbose/debug mode")
+	flag.BoolVar(&c.verbose, "v", false, "verbose mode")
+	flag.BoolVar(&c.debug, "vv", false, "debug mode")
 
 	flag.Usage = usage
 	flag.Parse()
@@ -37,7 +39,7 @@ func parseArgs() (c *configT) {
 
 func usage() {
 	fmt.Fprintf(flag.CommandLine.Output(),
-		"Usage: forever [-d dir] [-t events-tick] [-v]\n")
+		"Usage: forever [-d dir] [-t events-tick] [-v|-vv]\n")
 	flag.PrintDefaults()
 }
 
