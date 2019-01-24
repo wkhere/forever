@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	sysRusageExtras = rusageExtrasUnix{}
+	rusageExtras = rusageExtrasUnix{}
 }
 
 type rusageExtrasUnix struct{}

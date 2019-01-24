@@ -2,11 +2,11 @@ package main
 
 import "os"
 
-type rusageExtras interface {
+type rusageExtrasReader interface {
 	maxRss(*os.ProcessState) (int, bool)
 }
 
-var sysRusageExtras rusageExtras = noRusageExtras{}
+var rusageExtras rusageExtrasReader = noRusageExtras{}
 
 type noRusageExtras struct{}
 
