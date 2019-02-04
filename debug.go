@@ -6,6 +6,6 @@ import (
 
 func debugf(format string, a ...interface{}) {
 	if config.debug {
-		log(fmt.Sprintf("// "+format, a...))
+		log("//", fmt.Sprintf(format, a...))
 	}
 }
