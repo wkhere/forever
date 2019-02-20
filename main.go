@@ -15,6 +15,8 @@ type configT struct {
 	minTick time.Duration
 	verbose bool
 	debug   bool
+
+	progConfig progConfigT
 }
 
 var config *configT
@@ -30,16 +32,17 @@ func parseArgs() (c *configT) {
 	flag.Usage = usage
 	flag.Parse()
 
-	if len(flag.Args()) > 0 {
-		usage()
-		os.Exit(2)
+	if rest := flag.Args(); len(rest) > 0 {
+		c.progConfig.explicitProg = true
+		c.progConfig.prog = rest[0]
+		c.progConfig.args = rest[1:]
 	}
 	return
 }
 
 func usage() {
 	fmt.Fprintf(flag.CommandLine.Output(),
-		"Usage: forever [-d dir] [-t events-tick] [-v|-vv]\n")
+		"Usage: forever [-d dir] [-t events-tick] [-v|-vv] [command]\n")
 	flag.PrintDefaults()
 }
 
@@ -61,7 +64,7 @@ func main() {
 	// watcher should add all files before looping
 	feedWatcher(w)
 
-	go loop(w, config.minTick)
+	go loop(w, config.minTick, &config.progConfig)
 
 	neverending := make(chan struct{})
 	<-neverending

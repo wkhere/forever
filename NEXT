@@ -37,7 +37,10 @@
 
 + flags: -d DIR, -v for verbose, -vv for debug (was -d)
 
-- regular argument is a command to run
-  - if args are given, should be run on start, err/exit if not found in a path
-  - if no arg is given, ./.forever.step and make are tried as until now
++ regular argument is a command to run
+  ~ if args are given, should be run on start, err/exit if not found in a path
+    - now forever simply runs the given command on each change;
+      a better solution is to check availability of that command once at start
+      and do the some for default progs actually
+  + if no arg is given, ./.forever.step and make are tried as until now
 

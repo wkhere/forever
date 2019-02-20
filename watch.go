@@ -17,7 +17,7 @@ func (e evcatch) String() string {
 	return fmt.Sprintf("{%v %v}", e.t, e.ev)
 }
 
-func loop(w *fsnotify.Watcher, minTick time.Duration) {
+func loop(w *fsnotify.Watcher, minTick time.Duration, pc *progConfigT) {
 
 	type status uint
 	const (
@@ -43,7 +43,7 @@ func loop(w *fsnotify.Watcher, minTick time.Duration) {
 
 		go func() {
 			debugf("watch: proc! i=%v p=%v", ignoring, processing)
-			pst, err := process()
+			pst, err := pc.process()
 			switch {
 			case pst == nil:
 				log(err)
