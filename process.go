@@ -4,12 +4,27 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 type progConfigT struct {
 	explicitProg bool
 	prog         string
 	args         []string
+}
+
+func (pc progConfigT) String() string {
+	if !pc.explicitProg {
+		return "<undefined program, will use defaults>"
+	}
+	if len(pc.args) == 0 {
+		return pc.prog
+	}
+	if len(pc.args) > 4 {
+		return pc.prog + " ..."
+	}
+	return pc.prog + " " + strings.Join(pc.args, " ")
+
 }
 
 var defaultProgs = []string{

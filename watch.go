@@ -49,6 +49,9 @@ func loop(w *fsnotify.Watcher, minTick time.Duration, pc *progConfigT) {
 				log(err)
 			default:
 				t := time.Now()
+				if err != nil {
+					logf("process `%v` failed: %v", pc, err)
+				}
 				logBlue(fmt.Sprintf("[%s]", pstatef(pst, t.Sub(t0))))
 			}
 			statusc <- stProcessed
