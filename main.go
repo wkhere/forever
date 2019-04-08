@@ -31,6 +31,8 @@ func parseArgs() (c *configT) {
 	flag.Usage = usage
 	flag.Parse()
 
+	setupDebug(c.debug)
+
 	if rest := flag.Args(); len(rest) > 0 {
 		c.progConfig.explicitProg = true
 		c.progConfig.prog = rest[0]
