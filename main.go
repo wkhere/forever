@@ -3,7 +3,6 @@ package main // import "github.com/wkhere/forever"
 import (
 	"flag"
 	"fmt"
-	"io"
 	"os"
 	"time"
 
@@ -51,14 +50,12 @@ func main() {
 
 	err := os.Chdir(config.dir)
 	if err != nil {
-		log("cannot prepare:", err)
-		os.Exit(1)
+		fatal("cannot prepare:", err)
 	}
 
 	w, err := fsnotify.NewWatcher()
 	if err != nil {
-		log("cannot start watcher: ", err)
-		os.Exit(1)
+		fatal("cannot start watcher: ", err)
 	}
 
 	// watcher should add all files before looping
@@ -68,18 +65,4 @@ func main() {
 
 	neverending := make(chan struct{})
 	<-neverending
-}
-
-func log(msgs ...interface{}) {
-	fmt.Fprintln(os.Stderr, msgs...)
-}
-
-func logf(format string, msgs ...interface{}) {
-	log(fmt.Sprintf(format, msgs...))
-}
-
-func logBlue(s string) {
-	io.WriteString(os.Stderr, "\033[34m")
-	io.WriteString(os.Stderr, s)
-	io.WriteString(os.Stderr, "\033[0m\n")
 }
