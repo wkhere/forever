@@ -49,7 +49,10 @@
 
 + unify vocabulary: program, not command
 
-- walk: ignore non-regular files: devices, named pipes, sockets, ..etc
+- walk: ignore dirs on filesystems like /dev
+  (checking for dev-like files doesn't make sense, as the dirs are walked and
+   added, not the files)
+
 - die on patho-situations, like: -d /, too many files to watch, ..etc
 
 - extra: print watched files, for example on some signal
