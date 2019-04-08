@@ -43,7 +43,7 @@ func parseArgs() (c *configT) {
 
 func usage() {
 	fmt.Fprintf(flag.CommandLine.Output(),
-		"Usage: forever [-d dir] [-t events-tick] [-v|-vv] [command]\n")
+		"Usage: forever [-d dir] [-t events-tick] [-v|-vv] [program...]\n")
 	flag.PrintDefaults()
 }
 
