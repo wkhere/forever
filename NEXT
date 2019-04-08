@@ -47,3 +47,6 @@
 - more with regard to the run-the-command logic:
   if the command exits with non-zero, should be noted also;
   so far I print the error only if command couldn't be started at all 
+
+- walk: ignore non-regular files: devices, named pipes, sockets, ..etc
+- die on patho-situations, like: -d /, too many files to watch, ..etc
