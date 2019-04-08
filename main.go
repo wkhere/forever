@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
@@ -45,6 +46,10 @@ func usage() {
 	fmt.Fprintf(flag.CommandLine.Output(),
 		"Usage: forever [-d dir] [-t events-tick] [-v|-vv] [program...]\n")
 	flag.PrintDefaults()
+	fmt.Fprintf(flag.CommandLine.Output(),
+		"\nIf program is not given, the following will be tried:\n\t%s\n",
+		strings.Join(defaultProgs, "\n\t"),
+	)
 }
 
 func main() {
