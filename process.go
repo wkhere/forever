@@ -13,18 +13,19 @@ type progConfigT struct {
 	args         []string
 }
 
-func (pc progConfigT) String() string {
+func (pc progConfigT) String() (s string) {
 	if !pc.explicitProg {
-		return "<undefined program, will use defaults>"
+		s = "(default) "
 	}
-	if len(pc.args) == 0 {
-		return pc.prog
-	}
-	if len(pc.args) > 4 {
+	switch {
+	case len(pc.args) == 0:
+		s += pc.prog
+	case len(pc.args) > 4:
 		return pc.prog + " ..."
+	default:
+		s += pc.prog + " " + strings.Join(pc.args, " ")
 	}
-	return pc.prog + " " + strings.Join(pc.args, " ")
-
+	return
 }
 
 var defaultProgs = []string{
@@ -34,7 +35,9 @@ var defaultProgs = []string{
 
 func (pc *progConfigT) process() (*os.ProcessState, error) {
 	if !pc.explicitProg {
-		return processDefaultProgs()
+		chosen, ps, err := processDefaultProgs()
+		pc.prog = chosen
+		return ps, err
 	}
 	return processProg(pc.prog, pc.args)
 }
@@ -46,14 +49,15 @@ func processProg(p string, args []string) (*os.ProcessState, error) {
 	return run(p, args)
 }
 
-func processDefaultProgs() (*os.ProcessState, error) {
+func processDefaultProgs() (string, *os.ProcessState, error) {
 	for _, p := range defaultProgs {
 		if _, err := exec.LookPath(p); err != nil {
 			continue
 		}
-		return run(p, nil)
+		ps, err := run(p, nil)
+		return p, ps, err
 	}
-	return nil, fmt.Errorf("could not run any of default program")
+	return "", nil, fmt.Errorf("could not run any of default program")
 }
 
 func run(p string, args []string) (*os.ProcessState, error) {
