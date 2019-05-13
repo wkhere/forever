@@ -51,7 +51,7 @@
 
 + usage: show default programs
 
-- walk: ignore dirs on filesystems like /dev
+- walk: ignore dirs on filesystems like /dev, /proc, /sys
   (checking for dev-like files doesn't make sense, as the dirs are walked and
    added, not the files)
 
