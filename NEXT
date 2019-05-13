@@ -57,4 +57,4 @@
 
 - die on patho-situations, like: -d /, too many files to watch, ..etc
 
-- extra: print watched files, for example on some signal
+- extra: print watched dirs (after recursive walk+add) on some signal
