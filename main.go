@@ -62,7 +62,7 @@ func main() {
 
 	w, err := fsnotify.NewWatcher()
 	if err != nil {
-		fatal("cannot start watcher: ", err)
+		fatal("cannot start watcher:", err)
 	}
 
 	// watcher should add all files before looping
