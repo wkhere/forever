@@ -17,7 +17,7 @@ func (e evcatch) String() string {
 	return fmt.Sprintf("{%v %v}", e.t, e.ev)
 }
 
-func loop(w *fsnotify.Watcher, minTick time.Duration, pc *progConfigT) {
+func loop(w *watcher, pc *progConfigT) {
 
 	type status uint
 	const (
@@ -36,7 +36,7 @@ func loop(w *fsnotify.Watcher, minTick time.Duration, pc *progConfigT) {
 		ignoring = true
 		processing = true
 
-		minTicker = time.AfterFunc(minTick, func() {
+		minTicker = time.AfterFunc(w.minTick, func() {
 			debugf("watch: mintk i=%v p=%v", ignoring, processing)
 			statusc <- stMinTick
 		})
@@ -102,7 +102,7 @@ func loop(w *fsnotify.Watcher, minTick time.Duration, pc *progConfigT) {
 			case stProcessed:
 				processing = false
 
-				if t1.Sub(t0) < minTick {
+				if t1.Sub(t0) < w.minTick {
 					// nothing to do more, minTick will come
 					continue
 				}

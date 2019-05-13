@@ -22,7 +22,7 @@ var ignoredDirs = []string{
 	"classes",
 }
 
-func feedWatcher(w *watcher) {
+func (w *watcher) feed() {
 	root, err := filepath.Abs(".")
 	if err != nil {
 		fatal("walk: cannot get absolute path:", err)

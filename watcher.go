@@ -1,14 +1,19 @@
 package main
 
-import "github.com/fsnotify/fsnotify"
+import (
+	"time"
+
+	"github.com/fsnotify/fsnotify"
+)
 
 type watcher struct {
 	*fsnotify.Watcher
-	dirs []string
+	dirs    []string
+	minTick time.Duration
 }
 
-func newWatcher() (w *watcher, err error) {
-	w = new(watcher)
+func newWatcher(t time.Duration) (w *watcher, err error) {
+	w = &watcher{minTick: t}
 	w.Watcher, err = fsnotify.NewWatcher()
 	return
 }

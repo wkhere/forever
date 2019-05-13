@@ -56,15 +56,15 @@ func main() {
 		fatal("cannot prepare:", err)
 	}
 
-	w, err := newWatcher()
+	w, err := newWatcher(config.minTick)
 	if err != nil {
 		fatal("cannot start watcher:", err)
 	}
 
 	// watcher should add all files before looping
-	feedWatcher(w)
+	w.feed()
 
-	go loop(w.Watcher, config.minTick, &config.progConfig)
+	go loop(w, &config.progConfig)
 
 	neverending := make(chan struct{})
 	<-neverending
