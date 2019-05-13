@@ -6,8 +6,6 @@ import (
 	"os"
 	"strings"
 	"time"
-
-	"github.com/fsnotify/fsnotify"
 )
 
 type configT struct {
@@ -60,7 +58,7 @@ func main() {
 		fatal("cannot prepare:", err)
 	}
 
-	w, err := fsnotify.NewWatcher()
+	w, err := newWatcher()
 	if err != nil {
 		fatal("cannot start watcher:", err)
 	}
@@ -68,7 +66,7 @@ func main() {
 	// watcher should add all files before looping
 	feedWatcher(w)
 
-	go loop(w, config.minTick, &config.progConfig)
+	go loop(w.Watcher, config.minTick, &config.progConfig)
 
 	neverending := make(chan struct{})
 	<-neverending
