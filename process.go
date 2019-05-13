@@ -57,7 +57,7 @@ func processDefaultProgs() (string, *os.ProcessState, error) {
 		ps, err := run(p, nil)
 		return p, ps, err
 	}
-	return "", nil, fmt.Errorf("could not run any of default program")
+	return "", nil, fmt.Errorf("could not run any of default programs")
 }
 
 func run(p string, args []string) (*os.ProcessState, error) {
