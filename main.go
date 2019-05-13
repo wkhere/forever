@@ -63,6 +63,7 @@ func main() {
 
 	// watcher should add all files before looping
 	w.feed()
+	w.installSignal()
 
 	go loop(w, &config.progConfig)
 
