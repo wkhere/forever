@@ -4,45 +4,67 @@ import (
 	"fmt"
 	"os"
 	"time"
-
-	"github.com/fsnotify/fsnotify"
 )
 
-type evcatch struct {
-	ev fsnotify.Event
-	t  time.Time
+type statusCode uint
+
+const (
+	stProcessed statusCode = iota + 1
+	stMinTick
+)
+
+type status struct {
+	statusCode
+	t0 time.Time
 }
 
-func (e evcatch) String() string {
-	return fmt.Sprintf("{%v %v}", e.t, e.ev)
+type processingCause int
+
+const (
+	procStarted processingCause = iota + 1
+	procAwakened
+)
+
+func (s status) String() string {
+	return fmt.Sprintf("{code=%d t0=%s}", s.statusCode, timef_ns(s.t0))
+}
+
+func watchdebug(format string, a ...interface{}) {
+	debugf(fmt.Sprintf("watch at %s: ", timef_ns(time.Now()))+format,
+		a...)
 }
 
 func loop(w *watcher, pc *progConfigT) {
 
-	type status uint
-	const (
-		stProcessed status = iota + 1
-		stMinTick
-	)
-
 	var (
 		ignoring, processing bool
-		t0                   time.Time
 		minTicker            *time.Timer
 		statusc              = make(chan status)
 	)
 
-	startProcessing := func() {
+	startProcessing := func(why processingCause) {
 		ignoring = true
 		processing = true
 
+		t0 := time.Now()
+
+		var causeText string
+		switch why {
+		case procAwakened:
+			causeText = "awakened"
+		case procStarted:
+			causeText = "started"
+		}
+
+		logBlue(fmt.Sprintf("[forever %s %s]", causeText, timef(t0)))
+
 		minTicker = time.AfterFunc(w.minTick, func() {
-			debugf("watch: mintk i=%v p=%v", ignoring, processing)
-			statusc <- stMinTick
+			watchdebug("mintk i=%v p=%v", ignoring, processing)
+			statusc <- status{stMinTick, t0}
 		})
 
 		go func() {
-			debugf("watch: proc! i=%v p=%v", ignoring, processing)
+			watchdebug("proc! i=%v p=%v", ignoring, processing)
 			pst, err := pc.process()
 			switch {
 			case pst == nil:
@@ -54,13 +76,12 @@ func loop(w *watcher, pc *progConfigT) {
 				}
 				logBlue(fmt.Sprintf("[%s]", pstatef(pst, t.Sub(t0))))
 			}
-			statusc <- stProcessed
+			statusc <- status{stProcessed, t0}
 		}()
 	}
 
-	t0 = time.Now()
-	logBlue(fmt.Sprintf("[forever started %s]", timef(t0)))
-	startProcessing()
+	watchdebug("will start for first time")
+	startProcessing(procStarted)
 
 	for {
 		select {
@@ -68,11 +89,10 @@ func loop(w *watcher, pc *progConfigT) {
 			if !ok {
 				return
 			}
-			e := evcatch{ev, time.Now()}
-			debugf("watch: event i=%v p=%v", ignoring, processing)
+			watchdebug("got event %v, i=%v p=%v", ev, ignoring, processing)
 
 			if ignoring {
-				debugf("watch: ignore\t%s", e)
+				watchdebug("ignore event %v", ev)
 				continue
 			}
 
@@ -89,20 +109,19 @@ func loop(w *watcher, pc *progConfigT) {
 			// if new request comes during processing, is ignored as a conse-
 			// quence of the scenario above
 
-			debugf("watch: process\t%s", e)
-			t0 = time.Now()
-			logBlue(fmt.Sprintf("[forever awakened %s]", timef(t0)))
-			startProcessing()
+			watchdebug("will process event %v", ev)
+			startProcessing(procAwakened)
 
 		case st := <-statusc:
 			t1 := time.Now()
 
-			debugf("watch: strcv i=%v p=%v st=%v", ignoring, processing, st)
-			switch st {
+			watchdebug("strcv i=%v p=%v st=%v", ignoring, processing, st)
+
+			switch st.statusCode {
 			case stProcessed:
 				processing = false
 
-				if t1.Sub(t0) < w.minTick {
+				if t1.Sub(st.t0) < w.minTick {
 					// nothing to do more, minTick will come
 					continue
 				}
@@ -119,13 +138,17 @@ func loop(w *watcher, pc *progConfigT) {
 			if !ok {
 				return
 			}
-			debugf("watch: received error:", err)
+			log("watch: received error:", err)
 		}
 	}
 }
 
 func timef(t time.Time) string {
 	return t.Format("15:04:05")
+}
+
+func timef_ns(t time.Time) string {
+	return t.Format("15:04:05.000000000")
 }
 
 func pstatef(pst *os.ProcessState, wall time.Duration) string {
