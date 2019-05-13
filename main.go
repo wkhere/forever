@@ -17,8 +17,6 @@ type configT struct {
 	progConfig progConfigT
 }
 
-var config *configT
-
 func parseArgs() (c *configT) {
 	c = new(configT)
 
@@ -51,7 +49,7 @@ func usage() {
 }
 
 func main() {
-	config = parseArgs()
+	config := parseArgs()
 
 	err := os.Chdir(config.dir)
 	if err != nil {
