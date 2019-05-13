@@ -10,7 +10,7 @@ import (
 
 var (
 	logger      = logpkg.New(os.Stderr, "", 0)
-	debugLogger = logpkg.New(ioutil.Discard, "// ", 0)
+	debugLogger = logpkg.New(os.Stderr, "// ", 0)
 
 	log   = logger.Println
 	logf  = logger.Printf
@@ -27,7 +27,7 @@ func logBlue(s string) {
 }
 
 func setupDebug(ok bool) {
-	if ok {
-		debugLogger.SetOutput(os.Stderr)
+	if !ok {
+		debugLogger.SetOutput(ioutil.Discard)
 	}
 }
