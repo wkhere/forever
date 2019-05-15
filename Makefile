@@ -1,6 +1,6 @@
 go:
 	go fmt
-	go test
+	go test -race
 	go install
 
 .PHONY: go
