@@ -59,5 +59,6 @@
 - die on patho-situations, like: -d /, too many files to watch, ..etc
 
 + extra: print watched dirs (after recursive walk+add) on some signal
+  + print to tmp file 
 
 - add metrics

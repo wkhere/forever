@@ -39,13 +39,18 @@ func parseArgs() (c *configT) {
 }
 
 func usage() {
-	fmt.Fprintf(flag.CommandLine.Output(),
-		"Usage: forever [-d dir] [-t events-tick] [-v|-vv] [program...]\n")
+	p := func(format string, a ...interface{}) {
+		fmt.Fprintf(flag.CommandLine.Output(), format, a...)
+	}
+	p("Usage: forever [-d dir] [-t events-tick] [-v|-vv] [program...]\n")
 	flag.PrintDefaults()
-	fmt.Fprintf(flag.CommandLine.Output(),
-		"\nIf program is not given, the following will be tried:\n\t%s\n",
+	p("\nIf program is not given, the following will be tried:\n\t%s\n",
 		strings.Join(defaultProgs, "\n\t"),
 	)
+	if writeDirsOnSignal {
+		p("\nThe list of watched directories can be dumped to a file")
+		p("\n%s by sending HUP (-1) signal.\n", writeDirsOutputPattern)
+	}
 }
 
 func main() {
