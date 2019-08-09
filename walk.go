@@ -13,6 +13,8 @@ var ignoredPaths = []string{
 
 var ignoredDirs = []string{
 	".git",
+	".stfolder",
+	".stversions",
 	"vendor",
 	"__pycache__",
 	".mypy_cache",
