@@ -54,7 +54,9 @@
 ~ walk: ignore dirs on filesystems like /dev, /proc, /sys
   (checking for dev-like files doesn't make sense, as the dirs are walked and
    added, not the files)
-  - differentiate these special filesystems by OS
+  - run `df -P dir`, skip 1st line and look for 1st word - fs type
+  - differentiate these fs types by OS
+    - for linux, ignore: udev, proc, sysfs
 
 - die on patho-situations, like: -d /, too many files to watch, ..etc
 
