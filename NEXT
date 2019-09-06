@@ -61,4 +61,6 @@
 + extra: print watched dirs (after recursive walk+add) on some signal
   + print to tmp file 
 
+- consider *not* excluding .git dir
+
 - add metrics
