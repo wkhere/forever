@@ -66,3 +66,5 @@
 - consider *not* excluding .git dir
 
 - add metrics
+
+- switch to 1.13 wrapped errors
