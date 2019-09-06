@@ -58,6 +58,8 @@
   - differentiate these fs types by OS
     - for linux, ignore: udev, proc, sysfs
 
+- accept multiple -d dir, or: -d dir1,dir2,...
+
 - die on patho-situations, like: -d /, too many files to watch, ..etc
 
 + extra: print watched dirs (after recursive walk+add) on some signal
