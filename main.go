@@ -85,7 +85,5 @@ func main() {
 	w.installSignal()
 
 	go loop(w, &config.progConfig)
-
-	neverending := make(chan struct{})
-	<-neverending
+	select {} // block forever
 }
