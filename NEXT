@@ -70,3 +70,5 @@
 - add metrics
 
 - switch to 1.13 wrapped errors
+
++ rss gone wrong on darwin
