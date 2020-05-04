@@ -6,14 +6,13 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"path"
 	"strings"
 	"syscall"
 )
 
 const writeDirsOnSignal = true
 
-var writeDirsOutputPattern = path.Join(os.TempDir(), "forever-$PID")
+var writeDirsOutputPattern = "/tmp/forever-$PID"
 
 func (w *watcher) installSignal() {
 	c := make(chan os.Signal, 1)
