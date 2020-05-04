@@ -32,6 +32,19 @@ func parseArgs() (c *configT) {
 		"be verbose")
 	flagset.BoolVarP(&helpOnly, "help", "h", false,
 		"show this help and exit")
+	flagset.Usage = func() {
+		p := func(format string, a ...interface{}) {
+			fmt.Fprintf(flagset.Output(), format, a...)
+		}
+		p("Usage: forever [-d dir] [-t events-tick] [-v] [program...]\n\n")
+		flagset.PrintDefaults()
+		p("\nIf program is not given, the following will be tried:\n\t%s\n",
+			strings.Join(defaultProgs, "\n\t"))
+		if writeDirsOnSignal {
+			p("\nThe list of watched directories can be dumped to a file")
+			p("\n%s by sending HUP (-1) signal.\n", writeDirsOutputPattern)
+		}
+	}
 
 	err := flagset.Parse(os.Args[1:])
 	if err != nil {
@@ -39,7 +52,8 @@ func parseArgs() (c *configT) {
 		os.Exit(2)
 	}
 	if helpOnly {
-		help(flagset)
+		flagset.SetOutput(os.Stdout)
+		flagset.Usage()
 		os.Exit(0)
 	}
 
@@ -51,20 +65,6 @@ func parseArgs() (c *configT) {
 		c.progConfig.args = rest[1:]
 	}
 	return
-}
-
-func help(f *pflag.FlagSet) {
-	f.SetOutput(os.Stdout)
-	p := fmt.Printf
-	p("Usage: forever [-d dir] [-t events-tick] [-v] [program...]\n\n")
-	f.PrintDefaults()
-	p("\nIf program is not given, the following will be tried:\n\t%s\n",
-		strings.Join(defaultProgs, "\n\t"),
-	)
-	if writeDirsOnSignal {
-		p("\nThe list of watched directories can be dumped to a file")
-		p("\n%s by sending HUP (-1) signal.\n", writeDirsOutputPattern)
-	}
 }
 
 func main() {
