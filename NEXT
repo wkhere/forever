@@ -75,6 +75,6 @@
 
 + display RSS in more practical MB
 
-- after flags treat all as command, including its own flags
++ usage note to use `--` to separage program having its own flags
 
 - allow to run command in different dir than watched dir
