@@ -75,6 +75,6 @@
 
 + display RSS in more practical MB
 
-+ usage note to use `--` to separage program having its own flags
++ usage note to use `--` to separate program having its own flags
 
 - allow to run command in different dir than watched dir
