@@ -6,6 +6,7 @@ var ignoredMounts = []string{
 	"/dev",
 	"/proc",
 	"/sys",
+	"/run",
 }
 
 func isInIgnoredMount(path string) bool {
