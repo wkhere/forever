@@ -25,15 +25,6 @@ const (
 	procAwakened
 )
 
-func (s status) String() string {
-	return fmt.Sprintf("{code=%d t0=%s}", s.statusCode, timef_ns(s.t0))
-}
-
-func watchdebug(format string, a ...interface{}) {
-	debugf(fmt.Sprintf("watch at %s: ", timef_ns(time.Now()))+format,
-		a...)
-}
-
 func loop(w *watcher, pc *progConfigT) {
 
 	var (
@@ -143,12 +134,30 @@ func loop(w *watcher, pc *progConfigT) {
 	}
 }
 
+func (c statusCode) String() (s string) {
+	switch c {
+	case stProcessed:
+		s = "stProcessed"
+	case stMinTick:
+		s = "stMinTick"
+	}
+	return
+}
+func (s status) String() string {
+	return fmt.Sprintf("{code=%s t0=%s}", s.statusCode, timef_ns(s.t0))
+}
+
 func timef(t time.Time) string {
 	return t.Format("15:04:05")
 }
 
 func timef_ns(t time.Time) string {
 	return t.Format("15:04:05.000000000")
+}
+
+func watchdebug(format string, a ...interface{}) {
+	debugf(fmt.Sprintf("watch at %s: ", timef_ns(time.Now()))+format,
+		a...)
 }
 
 func pstatef(pst *os.ProcessState, wall time.Duration) string {
