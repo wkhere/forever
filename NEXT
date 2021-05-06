@@ -78,3 +78,5 @@
 + usage note to use `--` to separate program having its own flags
 
 - allow to run command in different dir than watched dir
+
+- fix test on windows
