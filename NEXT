@@ -82,3 +82,5 @@
 + red output from running the program if it errors, or can't be found
 
 - fix test on windows
+
+- use filepath.WalkDir - new in 1.16 ?
