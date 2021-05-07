@@ -5,13 +5,15 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/wkhere/redbuffer"
 )
 
 type progConfigT struct {
 	explicitProg bool
 	prog         string
 	args         []string
-	redbuf       bool
+	redOnError   bool
 }
 
 func (pc progConfigT) String() (s string) {
@@ -45,7 +47,7 @@ func (pc *progConfigT) processProg() (*os.ProcessState, error) {
 	if _, err := exec.LookPath(pc.prog); err != nil {
 		return nil, fmt.Errorf("could not run given program: %v", err)
 	}
-	return run(pc.prog, pc.args, pc.redbuf)
+	return run(pc.prog, pc.args, pc.redOnError)
 }
 
 func (pc *progConfigT) processDefaultProgs() (*os.ProcessState, error) {
@@ -54,18 +56,18 @@ func (pc *progConfigT) processDefaultProgs() (*os.ProcessState, error) {
 			continue
 		}
 		pc.prog = p
-		ps, err := run(p, nil, pc.redbuf)
+		ps, err := run(p, nil, pc.redOnError)
 		return ps, err
 	}
 	return nil, fmt.Errorf("could not run any of default programs")
 }
 
-func run(p string, args []string, redbuf bool) (*os.ProcessState, error) {
+func run(p string, args []string, redOnError bool) (*os.ProcessState, error) {
 	c := exec.Command(p, args...)
 	c.Stdout = os.Stdout
-	w := newRedbufWriter(os.Stderr)
+	w := redbuffer.New(os.Stderr)
 	c.Stderr = w
 	err := c.Run()
-	w.FlushInRed(redbuf && err != nil)
+	w.FlushInRed(redOnError && err != nil)
 	return c.ProcessState, err
 }
