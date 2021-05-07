@@ -11,6 +11,7 @@ type progConfigT struct {
 	explicitProg bool
 	prog         string
 	args         []string
+	redbuf       bool
 }
 
 func (pc progConfigT) String() (s string) {
@@ -35,35 +36,36 @@ var defaultProgs = []string{
 
 func (pc *progConfigT) process() (*os.ProcessState, error) {
 	if !pc.explicitProg {
-		chosen, ps, err := processDefaultProgs()
-		pc.prog = chosen
-		return ps, err
+		return pc.processDefaultProgs()
 	}
-	return processProg(pc.prog, pc.args)
+	return pc.processProg()
 }
 
-func processProg(p string, args []string) (*os.ProcessState, error) {
-	if _, err := exec.LookPath(p); err != nil {
+func (pc *progConfigT) processProg() (*os.ProcessState, error) {
+	if _, err := exec.LookPath(pc.prog); err != nil {
 		return nil, fmt.Errorf("could not run given program: %v", err)
 	}
-	return run(p, args)
+	return run(pc.prog, pc.args, pc.redbuf)
 }
 
-func processDefaultProgs() (string, *os.ProcessState, error) {
+func (pc *progConfigT) processDefaultProgs() (*os.ProcessState, error) {
 	for _, p := range defaultProgs {
 		if _, err := exec.LookPath(p); err != nil {
 			continue
 		}
-		ps, err := run(p, nil)
-		return p, ps, err
+		pc.prog = p
+		ps, err := run(p, nil, pc.redbuf)
+		return ps, err
 	}
-	return "", nil, fmt.Errorf("could not run any of default programs")
+	return nil, fmt.Errorf("could not run any of default programs")
 }
 
-func run(p string, args []string) (*os.ProcessState, error) {
+func run(p string, args []string, redbuf bool) (*os.ProcessState, error) {
 	c := exec.Command(p, args...)
 	c.Stdout = os.Stdout
-	c.Stderr = os.Stderr
+	w := newRedbufWriter(os.Stderr)
+	c.Stderr = w
 	err := c.Run()
+	w.FlushInRed(redbuf && err != nil)
 	return c.ProcessState, err
 }

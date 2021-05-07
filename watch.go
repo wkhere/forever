@@ -47,7 +47,7 @@ func loop(w *watcher, pc *progConfigT) {
 			causeText = "started"
 		}
 
-		logBlue(fmt.Sprintf("[forever %s %s]", causeText, timef(t0)))
+		logfBlue("[forever %s %s]", causeText, timef(t0))
 
 		minTicker = time.AfterFunc(w.minTick, func() {
 			watchdebug("mintk i=%v p=%v", ignoring, processing)
@@ -63,9 +63,9 @@ func loop(w *watcher, pc *progConfigT) {
 			default:
 				t := time.Now()
 				if err != nil {
-					logf("process `%v` failed: %v", pc, err)
+					logfRed("process `%v` failed: %v", pc, err)
 				}
-				logBlue(fmt.Sprintf("[%s]", pstatef(pst, t.Sub(t0))))
+				logfBlue("[%s]", pstatef(pst, t.Sub(t0)))
 			}
 			statusc <- status{stProcessed, t0}
 		}()

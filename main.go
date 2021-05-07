@@ -30,13 +30,16 @@ func parseArgs() (c *configT) {
 		"events tick")
 	flagset.BoolVarP(&c.verbose, "verbose", "v", false,
 		"be verbose")
+	flagset.BoolVarP(&c.progConfig.redbuf, "redbuf", "", true,
+		"colorize whole output if errored")
 	flagset.BoolVarP(&helpOnly, "help", "h", false,
 		"show this help and exit")
 	flagset.Usage = func() {
 		p := func(format string, a ...interface{}) {
 			fmt.Fprintf(flagset.Output(), format, a...)
 		}
-		p("Usage: forever [-d dir] [-t events-tick] [-v] [-- program ...]\n\n")
+		p("Usage: forever [-d dir] [-t events-tick] [--redbuf] [-v]")
+		p(" [-- program ...]\n\n")
 		flagset.PrintDefaults()
 		p("\nIf program is not given, the following will be tried:\n\t%s\n",
 			strings.Join(defaultProgs, "\n\t"))

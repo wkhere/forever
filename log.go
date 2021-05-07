@@ -3,7 +3,7 @@ package main
 import (
 	logpkg "log"
 
-	"io"
+	"fmt"
 	"io/ioutil"
 	"os"
 )
@@ -19,11 +19,23 @@ var (
 	debugf = debugLogger.Printf
 )
 
-func logBlue(s string) {
+func logfBlue(format string, a ...interface{}) {
+	logfColor(4, format, a...)
+}
+
+func logfGreen(format string, a ...interface{}) {
+	logfColor(2, format, a...)
+}
+
+func logfRed(format string, a ...interface{}) {
+	logfColor(1, format, a...)
+}
+
+func logfColor(color int, format string, a ...interface{}) {
 	w := logger.Writer()
-	io.WriteString(w, "\033[34m")
-	io.WriteString(w, s)
-	io.WriteString(w, "\033[0m\n")
+	fmt.Fprintf(w, "\033[3%d;1m", color)
+	fmt.Fprintf(w, format, a...)
+	fmt.Fprintf(w, "\033[0m\n")
 }
 
 func setupDebug(ok bool) {
