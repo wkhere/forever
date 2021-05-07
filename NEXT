@@ -79,4 +79,6 @@
 
 - allow to run command in different dir than watched dir
 
++ red output from running the program if it errors, or can't be found
+
 - fix test on windows
