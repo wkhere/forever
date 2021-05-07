@@ -59,7 +59,7 @@ func loop(w *watcher, pc *progConfigT) {
 			pst, err := pc.process()
 			switch {
 			case pst == nil:
-				log(err)
+				logfRed("%v", err)
 			default:
 				t := time.Now()
 				if err != nil {
