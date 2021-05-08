@@ -83,4 +83,5 @@
 
 - fix test on windows
 
-- use filepath.WalkDir - new in 1.16 ?
+- use filepath.WalkDir - new in 1.16 - benchmark
+  with eg. GOROOT/src
