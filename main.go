@@ -3,7 +3,6 @@ package main // import "github.com/wkhere/forever"
 import (
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/spf13/pflag"
@@ -34,15 +33,19 @@ func parseArgs() (c *configT) {
 		"colorize whole output if errored")
 	flagset.BoolVarP(&helpOnly, "help", "h", false,
 		"show this help and exit")
+
 	flagset.Usage = func() {
 		p := func(format string, a ...interface{}) {
 			fmt.Fprintf(flagset.Output(), format, a...)
 		}
 		p("Usage: forever [-d dir] [-t events-tick] [--redbuf] [-v]")
 		p(" [-- program ...]\n\n")
+
 		flagset.PrintDefaults()
-		p("\nIf program is not given, the following will be tried:\n\t%s\n",
-			strings.Join(defaultProgs, "\n\t"))
+		p("\nIf program is not given, the following will be tried:\n")
+		p(defaultProgsDescription)
+		p("\n")
+
 		if writeDirsOnSignal {
 			p("\nThe list of watched directories can be dumped to a file")
 			p("\n%s by sending HUP (-1) signal.\n", writeDirsOutputPattern)

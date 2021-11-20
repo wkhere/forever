@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -16,25 +17,7 @@ type progConfigT struct {
 	redOnError   bool
 }
 
-func (pc progConfigT) String() (s string) {
-	if !pc.explicitProg {
-		s = "(default) "
-	}
-	switch {
-	case len(pc.args) == 0:
-		s += pc.prog
-	case len(pc.args) > 4:
-		return pc.prog + " ..."
-	default:
-		s += pc.prog + " " + strings.Join(pc.args, " ")
-	}
-	return
-}
-
-var defaultProgs = []string{
-	"./.forever.step",
-	"make",
-}
+const stepfile = ".forever.step"
 
 func (pc *progConfigT) process() (*os.ProcessState, error) {
 	if !pc.explicitProg {
@@ -50,16 +33,29 @@ func (pc *progConfigT) processProg() (*os.ProcessState, error) {
 	return run(pc.prog, pc.args, pc.redOnError)
 }
 
+var defaultProgsDescription = fmt.Sprintf(
+	`
+	sh %s, if that file exists
+	make
+`,
+	stepfile,
+)
+
 func (pc *progConfigT) processDefaultProgs() (*os.ProcessState, error) {
-	for _, p := range defaultProgs {
-		if _, err := exec.LookPath(p); err != nil {
-			continue
-		}
-		pc.prog = p
-		ps, err := run(p, nil, pc.redOnError)
-		return ps, err
+
+	switch _, err := os.Stat(stepfile); {
+	case err == nil:
+		return run("sh", []string{stepfile}, pc.redOnError)
+
+	case errors.Is(err, os.ErrNotExist):
+		break
+
+	case err != nil:
+		return nil, fmt.Errorf("Unexpected error when looking for %s: %s",
+			stepfile, err)
 	}
-	return nil, fmt.Errorf("could not run any of default programs")
+
+	return run("make", nil, pc.redOnError)
 }
 
 func run(p string, args []string, redOnError bool) (*os.ProcessState, error) {
@@ -70,4 +66,19 @@ func run(p string, args []string, redOnError bool) (*os.ProcessState, error) {
 	err := c.Run()
 	w.FlushInRed(redOnError && err != nil)
 	return c.ProcessState, err
+}
+
+func (pc progConfigT) String() (s string) {
+	if !pc.explicitProg {
+		s = "(default) "
+	}
+	switch {
+	case len(pc.args) == 0:
+		s += pc.prog
+	case len(pc.args) > 4:
+		return pc.prog + " ..."
+	default:
+		s += pc.prog + " " + strings.Join(pc.args, " ")
+	}
+	return
 }
