@@ -45,7 +45,7 @@ func (pc *progConfigT) processDefaultProgs() (*os.ProcessState, error) {
 
 	switch _, err := os.Stat(stepfile); {
 	case err == nil:
-		return run("sh", []string{stepfile}, pc.redOnError)
+		return run("sh", []string{"-e", stepfile}, pc.redOnError)
 
 	case errors.Is(err, os.ErrNotExist):
 		break
