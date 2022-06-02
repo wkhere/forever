@@ -38,7 +38,7 @@ func parseArgs() (c *configT) {
 		p := func(format string, a ...interface{}) {
 			fmt.Fprintf(flagset.Output(), format, a...)
 		}
-		p("Usage: forever [-d dir] [-t events-tick] [--redbuf] [-v]")
+		p("Usage: forever [-d dir] [-t events-tick] [--red-err] [-v]")
 		p(" [-- program ...]\n\n")
 
 		flagset.PrintDefaults()
