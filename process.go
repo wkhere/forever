@@ -68,6 +68,7 @@ func run(p string, args []string, redOnError bool) (*os.ProcessState, error) {
 	return c.ProcessState, err
 }
 
+// is this dead code? :
 func (pc progConfigT) String() (s string) {
 	if !pc.explicitProg {
 		s = "(default) "
