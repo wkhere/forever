@@ -85,3 +85,7 @@
 
 - use filepath.WalkDir - new in 1.16 - benchmark
   with eg. GOROOT/src
+
+- --red-err help is misleading, as part of the error (a summary) is
+  red-colored anyway
+
