@@ -6,15 +6,12 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-
-	"github.com/wkhere/redbuffer"
 )
 
 type progConfigT struct {
 	explicitProg bool
 	prog         string
 	args         []string
-	redOnError   bool
 }
 
 const stepfile = ".forever.step"
@@ -30,7 +27,7 @@ func (pc *progConfigT) processProg() (*os.ProcessState, error) {
 	if _, err := exec.LookPath(pc.prog); err != nil {
 		return nil, fmt.Errorf("could not run given program: %v", err)
 	}
-	return run(pc.prog, pc.args, pc.redOnError)
+	return run(pc.prog, pc.args)
 }
 
 var defaultProgsDescription = fmt.Sprintf(
@@ -45,7 +42,7 @@ func (pc *progConfigT) processDefaultProgs() (*os.ProcessState, error) {
 
 	switch _, err := os.Stat(stepfile); {
 	case err == nil:
-		return run("sh", []string{"-e", stepfile}, pc.redOnError)
+		return run("sh", []string{"-e", stepfile})
 
 	case errors.Is(err, os.ErrNotExist):
 		break
@@ -55,16 +52,14 @@ func (pc *progConfigT) processDefaultProgs() (*os.ProcessState, error) {
 			stepfile, err)
 	}
 
-	return run("make", nil, pc.redOnError)
+	return run("make", nil)
 }
 
-func run(p string, args []string, redOnError bool) (*os.ProcessState, error) {
+func run(p string, args []string) (*os.ProcessState, error) {
 	c := exec.Command(p, args...)
 	c.Stdout = os.Stdout
-	w := redbuffer.New(os.Stderr)
-	c.Stderr = w
+	c.Stderr = os.Stderr
 	err := c.Run()
-	w.FlushInRed(redOnError && err != nil)
 	return c.ProcessState, err
 }
 

@@ -29,8 +29,6 @@ func parseArgs() (c *configT) {
 		"events tick")
 	flagset.BoolVarP(&c.verbose, "verbose", "v", false,
 		"be verbose")
-	flagset.BoolVarP(&c.progConfig.redOnError, "red-err", "", true,
-		"colorize whole output if errored")
 	flagset.BoolVarP(&helpOnly, "help", "h", false,
 		"show this help and exit")
 
