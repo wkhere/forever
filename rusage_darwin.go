@@ -13,10 +13,14 @@ type rusageExtrasDarwin struct{}
 
 // maxRss returns RSS usage in kB.
 // On Darwin getrusage(2) returns bytes count.
-func (_ rusageExtrasDarwin) maxRss(pst *os.ProcessState) (int, bool) {
+func (_ rusageExtrasDarwin) getMemStats(pst *os.ProcessState) (memStats, bool) {
 	rusage, ok := pst.SysUsage().(*syscall.Rusage)
 	if !ok {
-		return -1, false
+		return memStats{}, false
 	}
-	return int(rusage.Maxrss / 1024), true
+	return memStats{
+		maxRss: rusage.Maxrss / 1024,
+		minFlt: rusage.Minflt,
+		majFlt: rusage.Majflt,
+	}, true
 }

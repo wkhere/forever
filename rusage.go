@@ -2,15 +2,19 @@ package main
 
 import "os"
 
+type memStats struct {
+	maxRss         int64
+	minFlt, majFlt int64
+}
+
 type rusageExtrasGetter interface {
-	// maxRss returns RSS usage in kBytes, plus a bool flag if it was present.
-	maxRss(*os.ProcessState) (int, bool)
+	getMemStats(*os.ProcessState) (memStats, bool)
 }
 
 var rusageExtras rusageExtrasGetter = noRusageExtras{}
 
 type noRusageExtras struct{}
 
-func (_ noRusageExtras) maxRss(*os.ProcessState) (int, bool) {
-	return -1, false
+func (noRusageExtras) getMemStats(*os.ProcessState) (memStats, bool) {
+	return memStats{}, false
 }

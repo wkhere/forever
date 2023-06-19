@@ -13,10 +13,14 @@ type rusageExtrasLinux struct{}
 
 // maxRss returns RSS usage in kB.
 // On Linux this is what getrusage(2) returns.
-func (_ rusageExtrasLinux) maxRss(pst *os.ProcessState) (int, bool) {
+func (rusageExtrasLinux) getMemStats(pst *os.ProcessState) (memStats, bool) {
 	rusage, ok := pst.SysUsage().(*syscall.Rusage)
 	if !ok {
-		return -1, false
+		return memStats{}, false
 	}
-	return int(rusage.Maxrss), true
+	return memStats{
+		maxRss: rusage.Maxrss,
+		minFlt: rusage.Minflt,
+		majFlt: rusage.Majflt,
+	}, true
 }

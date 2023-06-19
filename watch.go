@@ -167,10 +167,13 @@ func pstatef(pst *os.ProcessState, wall time.Duration) string {
 		user = pst.UserTime()
 		pcpu = float64(user+sys) / float64(wall)
 	)
-	if maxrss, ok := rusageExtras.maxRss(pst); ok {
-		maxrssMB := float64(maxrss) / 1024
-		return fmt.Sprintf("%s user  %s sys  %.2f%% cpu  %s total, rss %.1fM",
-			user.Round(ms), sys.Round(ms), pcpu*100, wall.Round(ms), maxrssMB)
+	if mem, ok := rusageExtras.getMemStats(pst); ok {
+		maxrssMB := float64(mem.maxRss) / 1024
+		return fmt.Sprintf(
+			"%s user  %s sys  %.2f%% cpu  %s total,  %.1fM rss  %d/%d flt",
+			user.Round(ms), sys.Round(ms), pcpu*100, wall.Round(ms), maxrssMB,
+			mem.minFlt, mem.majFlt,
+		)
 	}
 	return fmt.Sprintf("%s user  %s sys  %.2f%% cpu  %s total",
 		user.Round(ms), sys.Round(ms), pcpu*100, wall.Round(ms))
