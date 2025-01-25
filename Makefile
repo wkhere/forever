@@ -7,4 +7,4 @@ endif
 install:
 	go install
 
-.PHONY: go
+.PHONY: go install
