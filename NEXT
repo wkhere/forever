@@ -1,4 +1,6 @@
 + elimination of multiple events after one edit
+-> actually this is still an issue - debug more 
+
 + tick configurable via commandline
 
 + reuse .forever.step but ignore files selection
