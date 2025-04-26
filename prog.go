@@ -8,26 +8,26 @@ import (
 	"strings"
 )
 
-type progConfigT struct {
-	explicitProg bool
-	prog         string
-	args         []string
+type prog struct {
+	path     string
+	args     []string
+	explicit bool
 }
 
 const stepfile = ".forever.step"
 
-func (pc *progConfigT) process() (*os.ProcessState, error) {
-	if !pc.explicitProg {
-		return pc.processDefaultProgs()
+func (p *prog) run() (*os.ProcessState, error) {
+	if !p.explicit {
+		return p.runDefaultProgs()
 	}
-	return pc.processProg()
+	return p.runProg()
 }
 
-func (pc *progConfigT) processProg() (*os.ProcessState, error) {
-	if _, err := exec.LookPath(pc.prog); err != nil {
+func (p *prog) runProg() (*os.ProcessState, error) {
+	if _, err := exec.LookPath(p.path); err != nil {
 		return nil, fmt.Errorf("could not run given program: %v", err)
 	}
-	return run(pc.prog, pc.args)
+	return run(p.path, p.args)
 }
 
 var defaultProgsDescription = fmt.Sprintf(
@@ -38,7 +38,7 @@ var defaultProgsDescription = fmt.Sprintf(
 	stepfile,
 )
 
-func (pc *progConfigT) processDefaultProgs() (*os.ProcessState, error) {
+func (p *prog) runDefaultProgs() (*os.ProcessState, error) {
 
 	switch _, err := os.Stat(stepfile); {
 	case err == nil:
@@ -64,17 +64,17 @@ func run(p string, args []string) (*os.ProcessState, error) {
 }
 
 // is this dead code? :
-func (pc progConfigT) String() (s string) {
-	if !pc.explicitProg {
+func (p prog) String() (s string) {
+	if !p.explicit {
 		s = "(default) "
 	}
 	switch {
-	case len(pc.args) == 0:
-		s += pc.prog
-	case len(pc.args) > 4:
-		return pc.prog + " ..."
+	case len(p.args) == 0:
+		s += p.path
+	case len(p.args) > 4:
+		return p.path + " ..."
 	default:
-		s += pc.prog + " " + strings.Join(pc.args, " ")
+		s += p.path + " " + strings.Join(p.args, " ")
 	}
 	return
 }

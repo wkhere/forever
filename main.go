@@ -8,16 +8,16 @@ import (
 	"github.com/spf13/pflag"
 )
 
-type configT struct {
-	dir     string
-	minTick time.Duration
-	verbose bool
+type config struct {
+	dir      string
+	timeslot time.Duration
+	verbose  bool
 
-	progConfig progConfigT
+	prog prog
 }
 
-func parseArgs() (c *configT) {
-	c = new(configT)
+func parseArgs() (c *config) {
+	c = new(config)
 
 	var helpOnly bool
 	flagset := pflag.NewFlagSet("flags", pflag.ContinueOnError)
@@ -25,8 +25,8 @@ func parseArgs() (c *configT) {
 
 	flagset.StringVarP(&c.dir, "dir", "d", ".",
 		"switch to `directory`")
-	flagset.DurationVarP(&c.minTick, "tick", "t", 200*time.Millisecond,
-		"events tick")
+	flagset.DurationVarP(&c.timeslot, "timeslot", "t", 200*time.Millisecond,
+		"timeslot for write events")
 	flagset.BoolVarP(&c.verbose, "verbose", "v", false,
 		"be verbose")
 	flagset.BoolVarP(&helpOnly, "help", "h", false,
@@ -36,7 +36,7 @@ func parseArgs() (c *configT) {
 		p := func(format string, a ...interface{}) {
 			fmt.Fprintf(flagset.Output(), format, a...)
 		}
-		p("Usage: forever [-d dir] [-t events-tick] [-v] [-- program ...]\n\n")
+		p("Usage: forever [-d dir] [-t duration] [-v] [-- program ...]\n\n")
 
 		flagset.PrintDefaults()
 		p("\nIf program is not given, the following will be tried:\n")
@@ -63,9 +63,9 @@ func parseArgs() (c *configT) {
 	setupDebug(c.verbose)
 
 	if rest := flagset.Args(); len(rest) > 0 {
-		c.progConfig.explicitProg = true
-		c.progConfig.prog = rest[0]
-		c.progConfig.args = rest[1:]
+		c.prog.path = rest[0]
+		c.prog.args = rest[1:]
+		c.prog.explicit = true
 	}
 	return
 }
@@ -78,7 +78,7 @@ func main() {
 		fatal("cannot prepare:", err)
 	}
 
-	w, err := newWatcher(config.minTick)
+	w, err := newWatcher(config.timeslot)
 	if err != nil {
 		fatal("cannot start watcher:", err)
 	}
@@ -87,6 +87,6 @@ func main() {
 	w.feed()
 	w.installSignal()
 
-	go loop(w, &config.progConfig)
+	go loop(w, &config.prog)
 	select {} // block forever
 }

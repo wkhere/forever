@@ -4,13 +4,27 @@ import (
 	"fmt"
 	"os"
 	"time"
+
+	"github.com/fsnotify/fsnotify"
 )
+
+type watcher struct {
+	*fsnotify.Watcher
+	dirs     []string
+	timeslot time.Duration
+}
+
+func newWatcher(t time.Duration) (w *watcher, err error) {
+	w = &watcher{timeslot: t}
+	w.Watcher, err = fsnotify.NewWatcher()
+	return
+}
 
 type statusCode uint
 
 const (
-	stProcessed statusCode = iota + 1
-	stMinTick
+	stRunFinished statusCode = iota + 1
+	stTimeslotEnded
 )
 
 type status struct {
@@ -18,61 +32,62 @@ type status struct {
 	t0 time.Time
 }
 
-type processingCause int
+type runCause int
 
 const (
-	procStarted processingCause = iota + 1
-	procAwakened
+	runFirst runCause = iota + 1
+	runAwakened
 )
 
-func loop(w *watcher, pc *progConfigT) {
+func loop(w *watcher, p *prog) {
 
 	var (
-		ignoring, processing bool
-		minTicker            *time.Timer
-		statusc              = make(chan status)
+		ignoring, running bool
+		timer             *time.Timer
+		statusc           = make(chan status)
 	)
 
-	startProcessing := func(why processingCause) {
+	startRunning := func(why runCause) {
 		ignoring = true
-		processing = true
+		running = true
 
 		t0 := time.Now()
 
 		var causeText string
 		switch why {
-		case procAwakened:
+		case runAwakened:
 			causeText = "awakened"
-		case procStarted:
+		case runFirst:
 			causeText = "started"
 		}
 
 		logfBlue("[forever %s %s]", causeText, timef(t0))
 
-		minTicker = time.AfterFunc(w.minTick, func() {
-			watchdebug("mintk i=%v p=%v", ignoring, processing)
-			statusc <- status{stMinTick, t0}
+		timer = time.AfterFunc(w.timeslot, func() {
+			watchdebug("tslot i=%v r=%v", ignoring, running)
+			statusc <- status{stTimeslotEnded, t0}
 		})
 
 		go func() {
-			watchdebug("proc! i=%v p=%v", ignoring, processing)
-			pst, err := pc.process()
+			watchdebug("run-> i=%v r=%v", ignoring, running)
+
+			pst, err := p.run()
 			switch {
 			case pst == nil:
 				logfRed("%v", err)
 			default:
 				t := time.Now()
 				if err != nil {
-					logfRed("process `%v` failed: %v", pc, err)
+					logfRed("run `%v` failed: %v", p, err)
 				}
 				logfBlue("[%s]", pstatef(pst, t.Sub(t0)))
 			}
-			statusc <- status{stProcessed, t0}
+			statusc <- status{stRunFinished, t0}
 		}()
 	}
 
-	watchdebug("will start for first time")
-	startProcessing(procStarted)
+	watchdebug("will start for the first time")
+	startRunning(runFirst)
 
 	for {
 		select {
@@ -80,47 +95,50 @@ func loop(w *watcher, pc *progConfigT) {
 			if !ok {
 				return
 			}
-			watchdebug("got event %v, i=%v p=%v", ev, ignoring, processing)
+			watchdebug("got event %v, i=%v r=%v", ev, ignoring, running)
+
+			// The timeslot covers a series of create/write events related to
+			// the same file-change operation.
+			//
+			// * if the timeslot ends during running then nop
+			// * if the timeslot ends after a finished run then ignoring stops
+			// * finished run doesn't stop ignoring unless timeslot ended
+
+			// so, max(running_time, timeslot) stops ignoring
+
+			// if a new request comes during running, is ignored as a conse-
+			// quence of the scenario above
 
 			if ignoring {
 				watchdebug("ignore event %v", ev)
 				continue
 			}
 
-			if processing {
-				panic("watch: processing while not ignoring shouldn't happen")
+			if running {
+				panic("watch: running while not ignoring shouldn't happen")
 			}
 
-			// if mintick comes during processing then nop
-			// if mintick comes after processing then ignoring stops
-			// processing end doesn't stop ignoring unless mintick time passed
-
-			// so, max(processing, mintick) stops ignoring
-
-			// if new request comes during processing, is ignored as a conse-
-			// quence of the scenario above
-
 			watchdebug("will process event %v", ev)
-			startProcessing(procAwakened)
+			startRunning(runAwakened)
 
 		case st := <-statusc:
 			t1 := time.Now()
 
-			watchdebug("strcv i=%v p=%v st=%v", ignoring, processing, st)
+			watchdebug("strcv i=%v r=%v st=%v", ignoring, running, st)
 
 			switch st.statusCode {
-			case stProcessed:
-				processing = false
+			case stRunFinished:
+				running = false
 
-				if t1.Sub(st.t0) < w.minTick {
-					// nothing to do more, minTick will come
+				if t1.Sub(st.t0) < w.timeslot {
+					// nothing to do more, timeslot will end
 					continue
 				}
-				minTicker.Stop() // in case of some subtle scheduling slip
+				timer.Stop() // in case of some subtle scheduling slip
 				ignoring = false
 
-			case stMinTick:
-				if !processing {
+			case stTimeslotEnded:
+				if !running {
 					ignoring = false
 				}
 			}
@@ -136,10 +154,10 @@ func loop(w *watcher, pc *progConfigT) {
 
 func (c statusCode) String() (s string) {
 	switch c {
-	case stProcessed:
-		s = "stProcessed"
-	case stMinTick:
-		s = "stMinTick"
+	case stRunFinished:
+		s = "stRunFinished"
+	case stTimeslotEnded:
+		s = "stTimeslotEnded"
 	}
 	return
 }
