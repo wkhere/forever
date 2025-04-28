@@ -36,3 +36,14 @@ func (w *watcher) feed() {
 		fatal("no dirs to watch")
 	}
 }
+
+func dirContains(base, path string) bool {
+	rel, err := filepath.Rel(base, path)
+	if err != nil {
+		return false
+	}
+	if rel == ".." || (len(rel) >= 3 && rel[:3] == "../") {
+		return false
+	}
+	return true
+}
