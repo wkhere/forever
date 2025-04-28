@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"os"
+	"io/fs"
 	"path/filepath"
 )
 
@@ -12,12 +12,12 @@ func (w *watcher) feed() error {
 		return fmt.Errorf("cannot get absolute path: %w", err)
 	}
 
-	err = filepath.Walk(root,
-		func(path string, info os.FileInfo, _ error) error {
-			if info != nil && info.IsDir() {
+	err = filepath.WalkDir(root,
+		func(path string, e fs.DirEntry, _ error) error {
+			if e.IsDir() {
 				if isInIgnoredMount(path) || isIgnoredDir(path) {
 					debugf("walk:  skip %s", path)
-					return filepath.SkipDir
+					return fs.SkipDir
 				}
 				err := w.Add(path)
 				if err != nil {
