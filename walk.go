@@ -1,18 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 )
 
-func (w *watcher) feed() {
+func (w *watcher) feed() error {
 	root, err := filepath.Abs(".")
 	if err != nil {
-		fatal("walk: cannot get absolute path:", err)
+		return fmt.Errorf("cannot get absolute path: %w", err)
 	}
 
 	err = filepath.Walk(root,
-		func(path string, info os.FileInfo, err error) error {
+		func(path string, info os.FileInfo, _ error) error {
 			if info != nil && info.IsDir() {
 				if isInIgnoredMount(path) || isIgnoredDir(path) {
 					debugf("walk:  skip %s", path)
@@ -28,13 +29,14 @@ func (w *watcher) feed() {
 			}
 			return nil
 		})
-	if err != nil {
-		fatal("walk error:", err)
-	}
 
-	if len(w.dirs) == 0 {
-		fatal("no dirs to watch")
+	if err != nil {
+		return fmt.Errorf("walk error: %w", err)
 	}
+	if len(w.dirs) == 0 {
+		return fmt.Errorf("no dirs to watch")
+	}
+	return nil
 }
 
 func dirContains(base, path string) bool {

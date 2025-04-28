@@ -12,9 +12,8 @@ var (
 	logger      = logpkg.New(os.Stderr, "", 0)
 	debugLogger = logpkg.New(os.Stderr, "// ", 0)
 
-	log   = logger.Println
-	logf  = logger.Printf
-	fatal = logger.Fatalln
+	log  = logger.Println
+	logf = logger.Printf
 
 	debugf = debugLogger.Printf
 )

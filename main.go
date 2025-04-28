@@ -14,12 +14,14 @@ type config struct {
 	verbose  bool
 
 	prog prog
+
+	help func()
 }
 
-func parseArgs() (c *config) {
+func parseArgs(args []string) (c *config, _ error) {
 	c = new(config)
 
-	var helpOnly bool
+	var help bool
 	flagset := pflag.NewFlagSet("flags", pflag.ContinueOnError)
 	flagset.SortFlags = false
 
@@ -29,7 +31,7 @@ func parseArgs() (c *config) {
 		"timeslot for write events")
 	flagset.BoolVarP(&c.verbose, "verbose", "v", false,
 		"be verbose")
-	flagset.BoolVarP(&helpOnly, "help", "h", false,
+	flagset.BoolVarP(&help, "help", "h", false,
 		"show this help and exit")
 
 	flagset.Usage = func() {
@@ -49,15 +51,15 @@ func parseArgs() (c *config) {
 		}
 	}
 
-	err := flagset.Parse(os.Args[1:])
+	err := flagset.Parse(args)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "forever:", err)
-		os.Exit(2)
+		return nil, err
 	}
-	if helpOnly {
-		flagset.SetOutput(os.Stdout)
-		flagset.Usage()
-		os.Exit(0)
+	if help {
+		c.help = func() {
+			flagset.SetOutput(os.Stdout)
+			flagset.Usage()
+		}
 	}
 
 	setupDebug(c.verbose)
@@ -67,26 +69,49 @@ func parseArgs() (c *config) {
 		c.prog.args = rest[1:]
 		c.prog.explicit = true
 	}
-	return
+	return c, nil
 }
 
 func main() {
-	config := parseArgs()
-
-	err := os.Chdir(config.dir)
+	config, err := parseArgs(os.Args[1:])
 	if err != nil {
-		fatal("cannot prepare:", err)
+		die(2, err)
+	}
+	if config.help != nil {
+		config.help()
+		os.Exit(0)
 	}
 
-	w, err := newWatcher(config.timeslot)
+	err = run(config)
 	if err != nil {
-		fatal("cannot start watcher:", err)
+		die(1, err)
+	}
+}
+
+func die(exitcode int, err error) {
+	fmt.Fprintln(os.Stderr, err)
+	os.Exit(exitcode)
+}
+
+func run(c *config) error {
+
+	err := os.Chdir(c.dir)
+	if err != nil {
+		return err
+	}
+
+	w, err := newWatcher(c.timeslot)
+	if err != nil {
+		return err
 	}
 
 	// watcher should add all files before looping
-	w.feed()
+	err = w.feed()
+	if err != nil {
+		return err
+	}
 	w.installSignal()
 
-	go loop(w, &config.prog)
+	go loop(w, &c.prog)
 	select {} // block forever
 }

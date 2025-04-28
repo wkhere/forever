@@ -27,7 +27,7 @@ func (p *prog) runProg() (*os.ProcessState, error) {
 	if _, err := exec.LookPath(p.path); err != nil {
 		return nil, fmt.Errorf("could not run given program: %v", err)
 	}
-	return run(p.path, p.args)
+	return runp(p.path, p.args)
 }
 
 var defaultProgsDescription = fmt.Sprintf(
@@ -42,7 +42,7 @@ func (p *prog) runDefaultProgs() (*os.ProcessState, error) {
 
 	switch _, err := os.Stat(stepfile); {
 	case err == nil:
-		return run("sh", []string{"-e", stepfile})
+		return runp("sh", []string{"-e", stepfile})
 
 	case errors.Is(err, os.ErrNotExist):
 		break
@@ -52,10 +52,10 @@ func (p *prog) runDefaultProgs() (*os.ProcessState, error) {
 			stepfile, err)
 	}
 
-	return run("make", nil)
+	return runp("make", nil)
 }
 
-func run(p string, args []string) (*os.ProcessState, error) {
+func runp(p string, args []string) (*os.ProcessState, error) {
 	c := exec.Command(p, args...)
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
