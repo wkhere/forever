@@ -36,8 +36,7 @@ func parseArgs() (c *configT) {
 		p := func(format string, a ...interface{}) {
 			fmt.Fprintf(flagset.Output(), format, a...)
 		}
-		p("Usage: forever [-d dir] [-t events-tick] [--red-err] [-v]")
-		p(" [-- program ...]\n\n")
+		p("Usage: forever [-d dir] [-t events-tick] [-v] [-- program ...]\n\n")
 
 		flagset.PrintDefaults()
 		p("\nIf program is not given, the following will be tried:\n")
