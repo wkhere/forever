@@ -38,6 +38,7 @@
 - improve readme
 
 + flags: -d DIR, -v for verbose, -vv for debug (was -d)
+  note: since 1291346a -v is debug 
 
 + regular argument is a command to run
   ~ if args are given, should be run on start, err/exit if not found in a path
