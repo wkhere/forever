@@ -20,6 +20,7 @@ var ignoredDirs = []string{
 	"deps",
 	"_build",
 	"classes",
+	".fingerprint",
 }
 
 func isInIgnoredMount(path string) bool {
