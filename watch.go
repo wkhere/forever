@@ -95,6 +95,10 @@ func loop(w *watcher, p *prog) {
 			if !ok {
 				return
 			}
+			if ev.Op&(fsnotify.Write|fsnotify.Create|fsnotify.Rename) == 0 {
+				continue
+			}
+
 			watchdebug("got event %v, i=%v r=%v", ev, ignoring, running)
 
 			// The timeslot covers a series of create/write events related to
