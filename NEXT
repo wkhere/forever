@@ -90,3 +90,5 @@
 
 + watch loop rewritten to eliminate a number of bugs and corner cases
 
+- fix printing of the prog being run
+
