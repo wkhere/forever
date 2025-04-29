@@ -1,6 +1,6 @@
 + elimination of multiple events after one edit
 
-+ timeslot configurable via commandline
++ event delay configurable via commandline
 
 + reuse .forever.step but ignore files selection
 
