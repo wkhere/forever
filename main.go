@@ -10,11 +10,11 @@ import (
 type config struct {
 	dir      string
 	timeslot time.Duration
-	verbose  bool
 
 	prog prog
 
-	help func(io.Writer)
+	verbose bool
+	help    func(io.Writer)
 }
 
 func defaults() *config {
