@@ -88,3 +88,5 @@
 + use filepath.WalkDir - new in 1.16
   - benchmark with eg. GOROOT/src
 
++ watch loop rewritten to eliminate a number of bugs and corner cases
+
