@@ -1,11 +1,10 @@
 + elimination of multiple events after one edit
--> actually this is still an issue - debug more 
 
-+ tick configurable via commandline
++ timeslot configurable via commandline
 
 + reuse .forever.step but ignore files selection
 
-+ run processing also on start, like forever.sh
++ run the program also on start, like forever.sh
 
 + use rusage or sth to print:
   [0.49s user  0.05s sys  100.61% cpu  0.551s total]
@@ -28,7 +27,7 @@
 + on failed steps, the program is run twice;
 + next program should be only tried if last was not found
 
-+ show timings also on failed processings runs (but when it was run)
++ show timings also on failed runs
 
 + somehow going to other directory misbehaves
   + chdir first and then add from .
@@ -72,7 +71,7 @@
 
 - add metrics
 
-- switch to 1.13 wrapped errors
+- switch to 1.13 wrapped errors - what? used in some places
 
 + rss gone wrong on darwin
 
