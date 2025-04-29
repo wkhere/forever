@@ -8,8 +8,9 @@ import (
 )
 
 type config struct {
-	dir      string
-	timeslot time.Duration
+	dir    string
+	delay  time.Duration
+	minRun time.Duration
 
 	prog prog
 
@@ -18,7 +19,11 @@ type config struct {
 }
 
 func defaults() *config {
-	return &config{dir: ".", timeslot: 200 * time.Millisecond}
+	return &config{
+		dir:    ".",
+		delay:  600 * time.Millisecond,
+		minRun: 250 * time.Millisecond,
+	}
 }
 
 func main() {
@@ -49,7 +54,7 @@ func run(c *config) error {
 		return err
 	}
 
-	w, err := newWatcher(c.timeslot)
+	w, err := newWatcher(c.delay, c.minRun)
 	if err != nil {
 		return err
 	}

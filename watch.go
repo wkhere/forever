@@ -10,25 +10,18 @@ import (
 
 type watcher struct {
 	*fsnotify.Watcher
-	dirs     []string
-	timeslot time.Duration
+	dirs   []string
+	delay  time.Duration
+	minRun time.Duration
 }
 
-func newWatcher(t time.Duration) (w *watcher, err error) {
-	w = &watcher{timeslot: t}
+func newWatcher(t, m time.Duration) (w *watcher, err error) {
+	w = &watcher{delay: t, minRun: m}
 	w.Watcher, err = fsnotify.NewWatcher()
 	return
 }
 
-type statusCode uint
-
-const (
-	stRunFinished statusCode = iota + 1
-	stTimeslotEnded
-)
-
 type status struct {
-	statusCode
 	t0 time.Time
 }
 
@@ -42,13 +35,14 @@ const (
 func loop(w *watcher, p *prog) {
 
 	var (
-		ignoring, running bool
-		timer             *time.Timer
-		statusc           = make(chan status)
+		running  bool
+		hadEvent bool
+		statusc  = make(chan status)
+		timer    = time.NewTimer(w.delay)
 	)
+	timer.Stop() // need to start it with prog running or for an event
 
 	startRunning := func(why runCause) {
-		ignoring = true
 		running = true
 
 		t0 := time.Now()
@@ -63,13 +57,10 @@ func loop(w *watcher, p *prog) {
 
 		logfBlue("[forever %s %s]", causeText, timef(t0))
 
-		timer = time.AfterFunc(w.timeslot, func() {
-			watchdebug("tslot i=%v r=%v", ignoring, running)
-			statusc <- status{stTimeslotEnded, t0}
-		})
+		timer.Reset(w.delay)
 
 		go func() {
-			watchdebug("run-> i=%v r=%v", ignoring, running)
+			watchdebug("run->")
 
 			pst, err := p.run()
 			switch {
@@ -82,7 +73,7 @@ func loop(w *watcher, p *prog) {
 				}
 				logfBlue("[%s]", pstatef(pst, t.Sub(t0)))
 			}
-			statusc <- status{stRunFinished, t0}
+			statusc <- status{t0}
 		}()
 	}
 
@@ -99,51 +90,34 @@ func loop(w *watcher, p *prog) {
 				continue
 			}
 
-			watchdebug("got event %v, i=%v r=%v", ev, ignoring, running)
+			watchdebug("event %v, r=%v, e=%v", ev, running, hadEvent)
 
-			// The timeslot covers a series of create/write events related to
-			// the same file-change operation.
-			//
-			// * if the timeslot ends during running then nop
-			// * if the timeslot ends after a finished run then ignoring stops
-			// * finished run doesn't stop ignoring unless timeslot ended
+			if running {
+				continue
+				// todo: run again with updates after a current run
+			}
+			hadEvent = true
+			timer.Reset(w.delay)
 
-			// so, max(running_time, timeslot) stops ignoring
+		case st := <-statusc:
+			watchdebug("->st, r=%v, e=%v, st=%v", running, hadEvent, st)
 
-			// if a new request comes during running, is ignored as a conse-
-			// quence of the scenario above
-
-			if ignoring {
-				watchdebug("ignore event %v", ev)
+			if dt := time.Now().Sub(st.t0); dt < w.minRun {
+				time.AfterFunc(w.minRun-dt, func() {
+					statusc <- status{st.t0}
+				})
 				continue
 			}
 
-			if running {
-				panic("watch: running while not ignoring shouldn't happen")
-			}
+			running = false
 
-			watchdebug("will process event %v", ev)
-			startRunning(runAwakened)
+		case <-timer.C:
+			watchdebug("timer, r=%v, e=%v", running, hadEvent)
 
-		case st := <-statusc:
-			t1 := time.Now()
-
-			watchdebug("strcv i=%v r=%v st=%v", ignoring, running, st)
-
-			switch st.statusCode {
-			case stRunFinished:
-				running = false
-
-				if t1.Sub(st.t0) < w.timeslot {
-					// nothing to do more, timeslot will end
-					continue
-				}
-				timer.Stop() // in case of some subtle scheduling slip
-				ignoring = false
-
-			case stTimeslotEnded:
+			if hadEvent {
+				hadEvent = false
 				if !running {
-					ignoring = false
+					startRunning(runAwakened)
 				}
 			}
 
@@ -156,17 +130,8 @@ func loop(w *watcher, p *prog) {
 	}
 }
 
-func (c statusCode) String() (s string) {
-	switch c {
-	case stRunFinished:
-		s = "stRunFinished"
-	case stTimeslotEnded:
-		s = "stTimeslotEnded"
-	}
-	return
-}
 func (s status) String() string {
-	return fmt.Sprintf("{code=%s t0=%s}", s.statusCode, timef_ns(s.t0))
+	return fmt.Sprintf("{t0=%s}", timef_ns(s.t0))
 }
 
 func timef(t time.Time) string {

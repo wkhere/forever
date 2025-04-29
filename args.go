@@ -9,15 +9,18 @@ import (
 func usage(w io.Writer, defaults *config) {
 	p := func(format string, a ...any) { fmt.Fprintf(w, format, a...) }
 
-	p(`Usage: forever [-d dir] [-t duration] [-v] [-- program ...]
+	p(`Usage: forever [-d dir] [-t duration] [-m duration] [-v] [-- program ...]
 
   -d, --dir directory       switch to directory (default %[1]q)
-  -t, --timeslot duration   timeslot for write events (default %[2]v)
+  -t, --delay duration      delay of write events (default %[2]v)
+  -m, --min-run duration    minimal run duration (default %[3]v); if the program
+                            was faster, there is a wait before further actions.
   -v, --verbose             be verbose
   -h, --help                show this help and exit
 `,
 		defaults.dir,
-		defaults.timeslot,
+		defaults.delay,
+		defaults.minRun,
 	)
 
 	p("\nIf program is not given, the following will be tried:\n")
@@ -43,8 +46,11 @@ flags:
 		case arg == "-d", arg == "--dir":
 			c.dir, args, err = parseStrFlag(arg, args[1:])
 
-		case arg == "-t", arg == "--timeslot":
-			c.timeslot, args, err = parseDurationFlag(arg, args[1:])
+		case arg == "-t", arg == "--delay":
+			c.delay, args, err = parseDurationFlag(arg, args[1:])
+
+		case arg == "-m", arg == "--min-run":
+			c.minRun, args, err = parseDurationFlag(arg, args[1:])
 
 		case arg == "-v", arg == "--verbose":
 			c.verbose, args = true, args[1:]
