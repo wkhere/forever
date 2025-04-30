@@ -69,7 +69,7 @@ func loop(w *watcher, p *prog) {
 			default:
 				t := time.Now()
 				if err != nil {
-					logfRed("run `%v` failed: %v", p, err)
+					logfRed("`%v` failed: %v", p, err)
 				}
 				logfBlue("[%s]", pstatef(pst, t.Sub(t0)))
 			}
