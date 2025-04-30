@@ -1,44 +1,52 @@
 package main
 
 import (
-	logpkg "log"
-
 	"fmt"
-	"io/ioutil"
 	"os"
 )
 
-var (
-	logger      = logpkg.New(os.Stderr, "", 0)
-	debugLogger = logpkg.New(os.Stderr, "// ", 0)
+var logw = os.Stderr
 
-	log  = logger.Println
-	logf = logger.Printf
+func log(a ...any) { fmt.Fprintln(logw, a...) }
 
-	debugf = debugLogger.Printf
-)
+func logf(format string, a ...any) {
+	fmt.Fprintf(logw, format, a...)
+	fmt.Fprintln(logw)
+}
 
-func logfBlue(format string, a ...interface{}) {
+func logfColor(color int, format string, a ...any) {
+	fmt.Fprintf(logw, "\033[3%d;1m", color)
+	fmt.Fprintf(logw, format, a...)
+	fmt.Fprint(logw, "\033[0m\n")
+}
+
+func logfBlue(format string, a ...any) {
 	logfColor(4, format, a...)
 }
 
-func logfGreen(format string, a ...interface{}) {
+func logfGreen(format string, a ...any) {
 	logfColor(2, format, a...)
 }
 
-func logfRed(format string, a ...interface{}) {
+func logfRed(format string, a ...any) {
 	logfColor(1, format, a...)
 }
 
-func logfColor(color int, format string, a ...interface{}) {
-	w := logger.Writer()
-	fmt.Fprintf(w, "\033[3%d;1m", color)
-	fmt.Fprintf(w, format, a...)
-	fmt.Fprintf(w, "\033[0m\n")
-}
+var (
+	debug  = func(a ...any) {}
+	debugf = func(format string, a ...any) {}
+)
 
 func setupDebug(ok bool) {
-	if !ok {
-		debugLogger.SetOutput(ioutil.Discard)
+	if ok {
+		debug = func(a ...any) {
+			fmt.Fprint(logw, "// ")
+			fmt.Fprintln(logw, a...)
+		}
+		debugf = func(format string, a ...any) {
+			fmt.Fprint(logw, "// ")
+			fmt.Fprintf(logw, format, a...)
+			fmt.Fprintln(logw)
+		}
 	}
 }
