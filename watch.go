@@ -105,7 +105,7 @@ func loop(w *watcher, p *prog) {
 
 			if dt < w.minRun {
 				time.AfterFunc(w.minRun-dt, func() {
-					statusc <- status{st.t0}
+					statusc <- st
 				})
 				continue
 			}
