@@ -144,8 +144,7 @@ func timef_ns(t time.Time) string {
 }
 
 func watchdebug(format string, a ...any) {
-	debugf(fmt.Sprintf("watch at %s: ", timef_ns(time.Now()))+format,
-		a...)
+	debugf(fmt.Sprintf("watch at %s: ", timef_ns(time.Now()))+format, a...)
 }
 
 func pstatef(pst *os.ProcessState, wall time.Duration) string {
