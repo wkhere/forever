@@ -143,7 +143,7 @@ func timef_ns(t time.Time) string {
 	return t.Format("15:04:05.000000000")
 }
 
-func watchdebug(format string, a ...any) {
+func _watchdebug(format string, a ...any) {
 	debugf(fmt.Sprintf("watch at %s: ", timef_ns(time.Now()))+format, a...)
 }
 

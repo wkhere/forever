@@ -35,6 +35,8 @@ func logfRed(format string, a ...any) {
 var (
 	debug  = func(a ...any) {}
 	debugf = func(format string, a ...any) {}
+
+	watchdebug = func(format string, a ...any) {}
 )
 
 func setupDebug(ok bool) {
@@ -48,5 +50,6 @@ func setupDebug(ok bool) {
 			fmt.Fprintf(logw, format, a...)
 			fmt.Fprintln(logw)
 		}
+		watchdebug = _watchdebug
 	}
 }
