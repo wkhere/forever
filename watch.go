@@ -93,7 +93,9 @@ func loop(w *watcher, p *prog) {
 
 			if running {
 				continue
-				// todo: run again with updates after a current run
+				// note: there was an idea to run again in this case after
+				// a current run, but that would contradict with the elimination
+				// of multiple events (like, from some editors)
 			}
 			hadEvent = true
 			timer.Reset(w.delay)
