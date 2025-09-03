@@ -46,6 +46,7 @@ func loop(w *watcher, p *prog) {
 		running = true
 
 		t0 := time.Now()
+		timer.Reset(w.delay)
 
 		var causeText string
 		switch why {
@@ -56,8 +57,6 @@ func loop(w *watcher, p *prog) {
 		}
 
 		logfBlue("[forever %s %s]", causeText, timef(t0))
-
-		timer.Reset(w.delay)
 
 		go func() {
 			watchdebug("run->")
