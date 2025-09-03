@@ -99,9 +99,11 @@ func loop(w *watcher, p *prog) {
 			timer.Reset(w.delay)
 
 		case st := <-statusc:
-			watchdebug("->st, r=%v, e=%v, st=%v", running, hadEvent, st)
+			dt := time.Now().Sub(st.t0)
 
-			if dt := time.Now().Sub(st.t0); dt < w.minRun {
+			watchdebug("->st, r=%v, e=%v, st=%v, dt=%s", running, hadEvent, st, dt)
+
+			if dt < w.minRun {
 				time.AfterFunc(w.minRun-dt, func() {
 					statusc <- status{st.t0}
 				})
