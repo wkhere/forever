@@ -1,9 +1,11 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"path/filepath"
+	"syscall"
 )
 
 func (w *watcher) feed() error {
@@ -21,6 +23,9 @@ func (w *watcher) feed() error {
 				}
 				err := w.Add(path)
 				if err != nil {
+					if errors.Is(err, syscall.EMFILE) {
+						return err // can't progress with too many open files
+					}
 					logf("error adding dir %s: %s", path, err)
 					return nil
 				}

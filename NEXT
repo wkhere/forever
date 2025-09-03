@@ -62,7 +62,7 @@
 
 - accept multiple -d dir, or: -d dir1,dir2,...
 
-- die on patho-situations, like: -d /, too many files to watch, ..etc
++ die on too many files to watch (-d / actually triggers this)
 
 + extra: print watched dirs (after recursive walk+add) on some signal
   + print to tmp file 
