@@ -66,6 +66,5 @@ func run(c *config) error {
 	}
 	w.installSignal()
 
-	go loop(w, &c.prog)
-	select {} // block forever
+	return loop(w, &c.prog) // returns only on error
 }
