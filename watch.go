@@ -33,16 +33,6 @@ const (
 	runAwakened
 )
 
-func (rc runCause) String() (s string) {
-	switch rc {
-	case runAwakened:
-		s = "awakened"
-	case runFirst:
-		s = "started"
-	}
-	return s
-}
-
 func loop(w *watcher, p *prog) error {
 
 	var (
@@ -140,6 +130,16 @@ var errFSNClosedChan = errors.New("fsnotify channel closed")
 
 func (s status) String() string {
 	return fmt.Sprintf("{t0=%s}", timef_ns(s.t0))
+}
+
+func (rc runCause) String() (s string) {
+	switch rc {
+	case runAwakened:
+		s = "awakened"
+	case runFirst:
+		s = "started"
+	}
+	return s
 }
 
 func timef(t time.Time) string {
