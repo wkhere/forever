@@ -1,6 +1,6 @@
 go:
 ifneq ($(OS), Windows_NT)
-	go test
+	go test -race .
 endif
 	go build
 
