@@ -32,7 +32,7 @@ func (p *prog) runProg() (*os.ProcessState, error) {
 
 var defaultProgsDescription = fmt.Sprintf(
 	`
-	sh %s, if that file exists
+	sh -e %s, if that file exists
 	make
 `,
 	stepfile,
