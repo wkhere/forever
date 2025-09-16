@@ -33,6 +33,16 @@ const (
 	runAwakened
 )
 
+func (rc runCause) String() (s string) {
+	switch rc {
+	case runAwakened:
+		s = "awakened"
+	case runFirst:
+		s = "started"
+	}
+	return s
+}
+
 func loop(w *watcher, p *prog) error {
 
 	var (
@@ -49,15 +59,7 @@ func loop(w *watcher, p *prog) error {
 		t0 := time.Now()
 		timer.Reset(w.delay)
 
-		var causeText string
-		switch why {
-		case runAwakened:
-			causeText = "awakened"
-		case runFirst:
-			causeText = "started"
-		}
-
-		logfBlue("[forever %s %s]", causeText, timef(t0))
+		logfBlue("[forever %s %s]", why, timef(t0))
 
 		go func() {
 			watchdebug("run->")
