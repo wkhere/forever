@@ -7,7 +7,7 @@ endif
 static:
 	CGO_ENABLED=0 go build -o forever.static
 
-install:
+install: go
 	go install
 
 .PHONY: go install static
