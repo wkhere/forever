@@ -63,7 +63,7 @@ func runp(p string, args []string) (*os.ProcessState, error) {
 	return c.ProcessState, err
 }
 
-// is this dead code? :
+// String method is used when printing after a failed run.
 func (p prog) String() (s string) {
 	if !p.explicit {
 		s = "(default) "
