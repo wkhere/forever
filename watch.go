@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -76,7 +75,7 @@ func loop(w *watcher, p *prog) error {
 		select {
 		case ev, ok := <-w.Events:
 			if !ok {
-				return fmt.Errorf("%w: events", errFSNClosedChan)
+				return errFSNClosedChan{"events"}
 			}
 			if ev.Op&(fsnotify.Write|fsnotify.Create|fsnotify.Rename) == 0 {
 				continue
@@ -119,14 +118,18 @@ func loop(w *watcher, p *prog) error {
 
 		case err, ok := <-w.Errors:
 			if !ok {
-				return fmt.Errorf("%w: errors", errFSNClosedChan)
+				return errFSNClosedChan{"errors"}
 			}
 			log("watch: received error:", err)
 		}
 	}
 }
 
-var errFSNClosedChan = errors.New("fsnotify channel closed")
+type errFSNClosedChan struct{ channel string }
+
+func (e errFSNClosedChan) Error() string {
+	return fmt.Sprintf("fsnotify: %s channel closed", e.channel)
+}
 
 func (s status) String() string {
 	return fmt.Sprintf("{t0=%s}", timef_ns(s.t0))
