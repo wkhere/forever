@@ -8,6 +8,6 @@ static:
 	CGO_ENABLED=0 go build -o forever.static
 
 install: go
-	go install
+	go install -ldflags=-s
 
 .PHONY: go install static
