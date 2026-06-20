@@ -9,6 +9,7 @@ import (
 
 type config struct {
 	dir    string
+	single bool
 	delay  time.Duration
 	minRun time.Duration
 
@@ -60,7 +61,11 @@ func run(c *config) error {
 	}
 
 	// watcher should add all files before looping
-	err = w.feed()
+	if c.single {
+		err = w.addSingle()
+	} else {
+		err = w.addRecursive()
+	}
 	if err != nil {
 		return err
 	}

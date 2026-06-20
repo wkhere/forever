@@ -9,8 +9,9 @@ import (
 func usage(w io.Writer, defaults *config) {
 	p := func(format string, a ...any) { fmt.Fprintf(w, format, a...) }
 
-	p(`Usage: forever [-d dir] [-m duration] [-t duration] [-v] [-- program ...]
+	p(`Usage: forever [-1] [-d dir] [-m duration] [-t duration] [-v] [-- program ...]
 
+  -1, --single              restrict watch to just one non-recursive directory
   -d, --dir directory       switch to directory (default %[1]q)
   -m, --min-run duration    minimal run duration (default %[2]v); if the program
                             was faster, there is a wait before further actions.
@@ -45,6 +46,9 @@ flags:
 
 		case arg == "-d", arg == "--dir":
 			c.dir, args, err = parseStrFlag(arg, args[1:])
+
+		case arg == "-1", arg == "--single":
+			c.single, args = true, args[1:]
 
 		case arg == "-t", arg == "--delay":
 			c.delay, args, err = parseDurationFlag(arg, args[1:])

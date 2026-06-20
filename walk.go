@@ -4,11 +4,41 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"os"
 	"path/filepath"
 	"syscall"
 )
 
-func (w *watcher) feed() error {
+func (w *watcher) addSingle() error {
+	path, err := filepath.Abs(".")
+	if err != nil {
+		return fmt.Errorf("cannot get absolute path: %w", err)
+	}
+
+	fi, err := os.Stat(path)
+	if err != nil {
+		return err
+	}
+	if !fi.IsDir() {
+		return fmt.Errorf("path %s should be a dir", path)
+	}
+	if isInIgnoredMount(path) || isIgnoredDir(path) {
+		return fmt.Errorf("path %s should be skipped", path)
+	}
+
+	err = w.Add(path)
+	if err != nil {
+		if errors.Is(err, syscall.EMFILE) {
+			return err // can't progress with too many open files
+		}
+		return fmt.Errorf("error adding dir %s: %w", path, err)
+	}
+
+	w.dirs = append(w.dirs, path)
+	return nil
+}
+
+func (w *watcher) addRecursive() error {
 	root, err := filepath.Abs(".")
 	if err != nil {
 		return fmt.Errorf("cannot get absolute path: %w", err)
