@@ -9,18 +9,18 @@ import (
 func usage(w io.Writer, defaults *config) {
 	p := func(format string, a ...any) { fmt.Fprintf(w, format, a...) }
 
-	p(`Usage: forever [-d dir] [-t duration] [-m duration] [-v] [-- program ...]
+	p(`Usage: forever [-d dir] [-m duration] [-t duration] [-v] [-- program ...]
 
   -d, --dir directory       switch to directory (default %[1]q)
-  -t, --delay duration      delay of write events (default %[2]v)
-  -m, --min-run duration    minimal run duration (default %[3]v); if the program
+  -m, --min-run duration    minimal run duration (default %[2]v); if the program
                             was faster, there is a wait before further actions.
+  -t, --delay duration      delay of write events (default %[3]v)
   -v, --verbose             be verbose
   -h, --help                show this help and exit
 `,
 		defaults.dir,
-		defaults.delay,
 		defaults.minRun,
+		defaults.delay,
 	)
 
 	p("\nIf program is not given, the following will be tried:\n")
