@@ -92,3 +92,4 @@
 
 - fix printing of the prog being run - ?? not sure what I meant
 
+- switch to argp lib
