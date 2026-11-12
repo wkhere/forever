@@ -8,8 +8,9 @@ import (
 	pt "codeberg.org/wkhere/argp/parsetime"
 )
 
-func usage(w io.Writer, defaults *config) {
+func usage(w io.Writer) {
 	p := func(format string, a ...any) { fmt.Fprintf(w, format, a...) }
+	d := defaults()
 
 	p(`Usage: forever [-1] [-d dir] [-m duration] [-t duration] [-v] [-- program ...]
 
@@ -21,9 +22,9 @@ func usage(w io.Writer, defaults *config) {
   -v, --verbose             be verbose
   -h, --help                show this help and exit
 `,
-		defaults.dir,
-		defaults.minRun,
-		defaults.delay,
+		d.dir,
+		d.minRun,
+		d.delay,
 	)
 
 	p("\nIf program is not given, the following will be tried:\n")
@@ -61,7 +62,7 @@ flags:
 			c.verbose = true
 
 		case p.MatchJustFlag("-h", "--help"):
-			c.help = func(w io.Writer) { usage(w, defaults()) }
+			c.help = usage
 			return c, nil
 
 		case p.Arg() == "--":
