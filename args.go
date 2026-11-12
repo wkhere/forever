@@ -68,7 +68,7 @@ flags:
 			break flags
 
 		case len(arg) > 1 && arg[0] == '-':
-			return c, fmt.Errorf("unknown flag: %s", arg)
+			return c, fmt.Errorf("unknown flag %s", arg)
 
 		default:
 			rest = args
