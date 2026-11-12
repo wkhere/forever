@@ -26,11 +26,10 @@ func usage(w io.Writer, defaults *config) {
 
 	p("\nIf program is not given, the following will be tried:\n")
 	p(defaultProgsDescription)
-	p("\n")
 
 	if writeDirsOnSignal {
-		p("\nThe list of watched directories can be dumped to a file")
-		p("\n%s by sending HUP (-1) signal.\n", writeDirsOutputPattern)
+		p("\nThe list of watched directories can be dumped to the file %s\n", writeDirsOutputPattern)
+		p("by sending HUP (-1) signal.\n")
 	}
 }
 
