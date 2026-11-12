@@ -1,6 +1,6 @@
 module github.com/wkhere/forever
 
-go 1.23 // for timers
+go 1.23.0 // for timers
 
 require github.com/fsnotify/fsnotify v1.9.0
 
