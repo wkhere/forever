@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"io"
-	"time"
+
+	"codeberg.org/wkhere/argp"
+	pt "codeberg.org/wkhere/argp/parsetime"
 )
 
 func usage(w io.Writer, defaults *config) {
@@ -33,49 +35,50 @@ func usage(w io.Writer, defaults *config) {
 	}
 }
 
-func parseArgs(args []string) (c *config, err error) {
+func parseArgs(args []string) (c *config, _ error) {
 	c = defaults()
 
+	var p = &argp.PState{Args: args}
 	var rest []string
 
 flags:
-	for len(args) > 0 && err == nil {
+	for ; len(p.Args) > 0 && p.Err == nil; p.Next() {
+		switch {
 
-		switch arg := args[0]; {
+		case p.MatchFlagExpr("-d", "--dir"):
+			c.dir = p.Val
 
-		case arg == "-d", arg == "--dir":
-			c.dir, args, err = parseStrFlag(arg, args[1:])
+		case p.MatchJustFlag("-1", "--single"):
+			c.single = true
 
-		case arg == "-1", arg == "--single":
-			c.single, args = true, args[1:]
+		case p.MatchFlagExpr("-t", "--delay"):
+			pt.ParseDuration(&c.delay, p)
 
-		case arg == "-t", arg == "--delay":
-			c.delay, args, err = parseDurationFlag(arg, args[1:])
+		case p.MatchFlagExpr("-m", "--min-run"):
+			pt.ParseDuration(&c.minRun, p)
 
-		case arg == "-m", arg == "--min-run":
-			c.minRun, args, err = parseDurationFlag(arg, args[1:])
+		case p.MatchJustFlag("-v", "--verbose"):
+			c.verbose = true
 
-		case arg == "-v", arg == "--verbose":
-			c.verbose, args = true, args[1:]
-
-		case arg == "-h", arg == "--help":
+		case p.MatchJustFlag("-h", "--help"):
 			c.help = func(w io.Writer) { usage(w, defaults()) }
 			return c, nil
 
-		case arg == "--":
-			rest = args[1:]
+		case p.Arg() == "--":
+			rest = p.Args[1:]
 			break flags
 
-		case len(arg) > 1 && arg[0] == '-':
-			return c, fmt.Errorf("unknown flag %s", arg)
+		case p.MatchAnyFlag():
+			p.Errorf("unknown flag %s", p.Flag)
 
 		default:
-			rest = args
+			rest = p.Args
 			break flags
 		}
 	}
-	if err != nil {
-		return c, err
+
+	if p.Err != nil {
+		return c, p.Err
 	}
 
 	setupDebug(c.verbose)
@@ -86,22 +89,4 @@ flags:
 		c.prog.explicit = true
 	}
 	return c, nil
-}
-
-func parseStrFlag(s string, args []string) (x string, rest []string, err error) {
-	if len(args) < 1 {
-		return "", args, fmt.Errorf("flag %s: arg required", s)
-	}
-	return args[0], args[1:], nil
-}
-
-func parseDurationFlag(s string, args []string) (x time.Duration, rest []string, err error) {
-	if len(args) < 1 {
-		return 0, args, fmt.Errorf("flag %s: arg required", s)
-	}
-	x, err = time.ParseDuration(args[0])
-	if err != nil {
-		err = fmt.Errorf("flag %s: %w", s, err)
-	}
-	return x, args[1:], err
 }
