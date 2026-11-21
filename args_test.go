@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"mvdan.cc/sh/v3/shell"
+	"github.com/wkhere/shargs"
 )
 
 func TestParseArgs(t *testing.T) {
@@ -109,7 +109,7 @@ func TestParseArgs(t *testing.T) {
 	for i, tc := range tab {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 
-			args, err := shell.Fields(tc.input, nil)
+			args, err := shargs.Fields(tc.input)
 			if err != nil {
 				t.Fatalf("shell args: %v", err)
 			}
